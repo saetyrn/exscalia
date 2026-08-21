@@ -1,0 +1,75 @@
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    environment:
+      # Set these in a .env file next to this compose file (see .env.example).
+      OMNIA_AUTH_USERNAME: ${OMNIA_AUTH_USERNAME:-owner}
+      OMNIA_AUTH_PASSWORD: ${OMNIA_AUTH_PASSWORD:-}
+      OMNIA_SESSION_SECRET: ${OMNIA_SESSION_SECRET:-change-me-in-production}
+      # Web Push: leave unset to auto-generate a keypair into the data volume on
+      # first boot (persists across redeploys). Set both to pin an existing pair.
+      OMNIA_VAPID_PUBLIC_KEY: ${OMNIA_VAPID_PUBLIC_KEY:-}
+      OMNIA_VAPID_PRIVATE_KEY: ${OMNIA_VAPID_PRIVATE_KEY:-}
+      OMNIA_VAPID_SUBJECT: ${OMNIA_VAPID_SUBJECT:-mailto:owner@exscalia.art}
+      OMNIA_TIMEZONE: ${OMNIA_TIMEZONE:-America/New_York}
+      OMNIA_AI_PROVIDER: ${OMNIA_AI_PROVIDER:-anthropic}
+      OMNIA_ANTHROPIC_API_KEY: ${OMNIA_ANTHROPIC_API_KEY:-}
+      OMNIA_OPENAI_API_KEY: ${OMNIA_OPENAI_API_KEY:-}
+      OMNIA_GOOGLE_API_KEY: ${OMNIA_GOOGLE_API_KEY:-}
+      OMNIA_EMBEDDING_MODEL: ${OMNIA_EMBEDDING_MODEL:-BAAI/bge-small-en-v1.5}
+      OMNIA_BACKUP_REMOTE: ${OMNIA_BACKUP_REMOTE:-}
+      OMNIA_BACKUP_INTERVAL: ${OMNIA_BACKUP_INTERVAL:-3600}
+      OMNIA_UPDATES_DIR: /updates
+    volumes:
+      - omnianote-data:/data
+      # Desktop-app update feed, published by desktop/publish-update.sh via
+      # scp into ~/omnianote/updates on the host. Read-only in the container.
+      - ./updates:/updates:ro
+    expose:
+      - "8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      # First boot downloads the embedding model; don't kill it mid-download.
+      start_period: 180s
+    # fastembed + ONNX + LanceDB share this container with the server. A cap
+    # turns a runaway into a restart instead of the VPS's OOM killer taking
+    # the app down mid-commit.
+    mem_limit: 2g
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      app:
+        condition: service_healthy
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      # Your domain, e.g. notes.example.com. Leave unset for localhost.
+      DOMAIN: ${DOMAIN:-localhost}
+      # Optional extra domain (e.g. the bare apex) redirected to DOMAIN.
+      REDIRECT_DOMAIN: ${REDIRECT_DOMAIN:-redirect.localhost}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+
+volumes:
+  omnianote-data:
+  caddy-data:
+  caddy-config:

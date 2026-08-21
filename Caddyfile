@@ -1,0 +1,21 @@
+# Automatic HTTPS: with DOMAIN set to a real domain pointing at this server,
+# Caddy provisions Let's Encrypt certificates automatically. With the default
+# (localhost) it serves a locally-trusted self-signed certificate.
+{$DOMAIN:localhost} {
+	encode gzip
+	header {
+		# A year of HSTS: the app is HTTPS-only and cookie-authenticated.
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options nosniff
+		X-Frame-Options DENY
+		Referrer-Policy no-referrer
+	}
+	reverse_proxy app:8000
+}
+
+# Optional alias redirect: set REDIRECT_DOMAIN (e.g. the bare apex
+# exscalia.art) to permanently redirect it to the app domain above. The
+# default is an unused .localhost name so this block is inert when unset.
+{$REDIRECT_DOMAIN:redirect.localhost} {
+	redir https://{$DOMAIN:localhost}{uri} permanent
+}

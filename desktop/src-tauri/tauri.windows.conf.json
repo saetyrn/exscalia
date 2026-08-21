@@ -1,0 +1,15 @@
+{
+  "app": {
+    "windows": [
+      {
+        "title": "EXSCALIA",
+        "width": 1200,
+        "height": 800,
+        "minWidth": 800,
+        "minHeight": 600,
+        "dragDropEnabled": false,
+        "decorations": false
+      }
+    ]
+  }
+}
