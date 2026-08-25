@@ -42,7 +42,12 @@ const format = (doc: string) => formatMarked(`${doc}\n\n|`);
 describe('buildFormatDecorations — what the caret may enter', () => {
 	it('makes a hidden bullet atomic', () => {
 		const { decorations, atomic } = format('- one');
-		expect(spans(decorations)).toEqual([[0, 1]]);
+		// [0,0] is the line hang-indent (wrapped rows align under the text);
+		// [0,1] is the bullet replacement.
+		expect(spans(decorations)).toEqual([
+			[0, 0],
+			[0, 1]
+		]);
 		expect(spans(atomic)).toEqual([[0, 1]]);
 	});
 
@@ -62,7 +67,10 @@ describe('buildFormatDecorations — what the caret may enter', () => {
 		// It is a mark, not a replacement: the digits stay real text and the
 		// caret must be able to sit among them.
 		const { decorations, atomic } = format('1. one');
-		expect(spans(decorations)).toEqual([[0, 2]]);
+		expect(spans(decorations)).toEqual([
+			[0, 0],
+			[0, 2]
+		]);
 		expect(spans(atomic)).toEqual([]);
 	});
 
@@ -72,7 +80,10 @@ describe('buildFormatDecorations — what the caret may enter', () => {
 
 	it('keeps the bullet on the selected line — bullets never reveal', () => {
 		const { decorations, atomic } = formatMarked('- on|e');
-		expect(spans(decorations)).toEqual([[0, 1]]);
+		expect(spans(decorations)).toEqual([
+			[0, 0],
+			[0, 1]
+		]);
 		expect(spans(atomic)).toEqual([[0, 1]]);
 	});
 });

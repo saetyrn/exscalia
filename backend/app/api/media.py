@@ -552,6 +552,7 @@ class PatchMedia(BaseModel):
     rating: int | None = None
     status: str | None = None
     alias: str | None = None
+    total: int | None = None
     base_revision: str | None = None
 
 
@@ -573,6 +574,7 @@ async def _rewrite(
     status: str | None = None,
     entry: dict | None = None,
     alias: str | None = None,
+    total: int | None = None,
     review: str | None = None,
     remove_entry: dict | None = None,
     base_revision: str | None,
@@ -597,6 +599,7 @@ async def _rewrite(
                 status=status,
                 entry=entry,
                 alias=alias,
+                total=total,
                 today=_today(request),
             )
     except ValueError as exc:
@@ -656,6 +659,7 @@ async def patch_media(request: Request, path: str, body: PatchMedia):
         rating=body.rating,
         status=body.status,
         alias=body.alias,
+        total=body.total,
         base_revision=body.base_revision,
     )
 

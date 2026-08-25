@@ -1,12 +1,65 @@
 <script lang="ts">
+	import { page } from '$app/state';
+	import { cubicOut } from 'svelte/easing';
 	import MediaChatPopover from '$lib/MediaChatPopover.svelte';
 	import Glyph from '$lib/Glyph.svelte';
 	import MediaNav from '$lib/media/MediaNav.svelte';
 
 	let { children } = $props();
+
+	// This shell now persists across the four hub tabs (the root {#key}
+	// collapses them to one key), so only the content below swaps. Slide the
+	// incoming content horizontally in tab order: forward (a later tab) enters
+	// from the right, backward from the left. In-only — the outgoing content is
+	// removed instantly, so nothing lingers in flow to shift the layout; the
+	// wrapper clips the horizontal overhang so no scrollbar appears.
+	const TAB_INDEX: Record<string, number> = {
+		'/media': 0,
+		'/media/library': 1,
+		'/media/activity': 2,
+		'/media/watchlist': 3
+	};
+
+	// Tracked across intros to pick direction. Read at intro time (the new
+	// node is created with page.url.pathname already advanced), so it needs no
+	// effect-ordering coordination.
+	let prevIndex = TAB_INDEX[page.url.pathname] ?? 0;
+
+	let shell = $state<HTMLDivElement>();
+	// The persisted shell keeps its scrollTop; reset to the top on every tab
+	// change so each tab opens at its start, matching the old remount behavior.
+	$effect(() => {
+		const p = page.url.pathname;
+		if (TAB_INDEX[p] !== undefined && shell) shell.scrollTop = 0;
+	});
+
+	function hubSlide(_node: Element) {
+		const curIdx = TAB_INDEX[page.url.pathname] ?? prevIndex;
+		const direction = curIdx >= prevIndex ? 1 : -1;
+		prevIndex = curIdx;
+
+		const reduce =
+			typeof window !== 'undefined' &&
+			window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		const mobile =
+			typeof window !== 'undefined' &&
+			window.matchMedia('(max-width: 760px)').matches;
+
+		// Reduced motion: opacity only. Desktop: a plain fade matching the old
+		// remount fade — no slide, no layout change. Mobile: directional slide.
+		if (reduce) return { duration: 0, css: (t: number) => `opacity: ${t}` };
+		if (!mobile)
+			return { duration: 140, easing: cubicOut, css: (t: number) => `opacity: ${t}` };
+		return {
+			duration: 220,
+			easing: cubicOut,
+			css: (t: number, u: number) =>
+				`opacity: ${t}; transform: translateX(${direction * 28 * u}px)`
+		};
+	}
 </script>
 
-<div class="media-shell">
+<div class="media-shell" bind:this={shell}>
 	<!-- One header row in normal flow — arrows, section nav, OMNIA — so the
 	     chrome is identical on every hub page and nothing can overlap. Pages
 	     put their own controls (search, sort, filters) below, never here. -->
@@ -44,7 +97,13 @@
 		</div>
 	</header>
 
-	{@render children()}
+	<div class="hub-content">
+		{#key page.url.pathname}
+			<div class="hub-page" in:hubSlide>
+				{@render children()}
+			</div>
+		{/key}
+	</div>
 </div>
 
 <style>
@@ -65,6 +124,12 @@
 		overflow-y: auto;
 		background: var(--bg);
 		color: var(--text);
+	}
+	.hub-content {
+		/* Clip (not hidden) the horizontal slide overhang so the incoming tab
+		   never spawns a scrollbar. `clip` leaves overflow-y visible, so the
+		   .media-shell above stays the sole vertical scroll container. */
+		overflow-x: clip;
 	}
 	.media-header {
 		display: flex;

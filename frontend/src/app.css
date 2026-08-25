@@ -199,9 +199,27 @@ body.touch-dragging * {
 /* Media routes: the document root joins the media-shell black so the
    status-bar zone and the band under the fixed tab bar can't show the
    app theme. Toggled by the root layout. */
+/* Media routes wear the media look across the WHOLE app, not just the media
+   pane: the sidebar/drawer, top bar, tab bar and overlays all sit outside the
+   media page's own wrapper, so the palette has to live at the document root to
+   reach them. The secondary colour is white here by request. The media pages'
+   own internal hierarchy is preserved because .media-shell (and the item
+   page) re-declare their muted grey for their own subtree. --accent still
+   follows the app theme. */
+:root[data-media-look] {
+	--bg: #000000;
+	--bg-panel: #17171a;
+	--bg-hover: color-mix(in srgb, #ffffff 7%, transparent);
+	--bg-active: color-mix(in srgb, #ffffff 12%, transparent);
+	--border: #2a2a2e;
+	--text: #ffffff;
+	--text-muted: #ffffff;
+	--accent-soft: color-mix(in srgb, var(--accent) 16%, transparent);
+}
 :root[data-media-look],
 :root[data-media-look] body {
 	background: #000000;
+	color: var(--text);
 }
 
 html,

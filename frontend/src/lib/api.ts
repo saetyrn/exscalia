@@ -901,6 +901,7 @@ export const api = {
 			rating?: number | null;
 			status?: MediaStatus;
 			alias?: string;
+			total?: number | null;
 			base_revision?: string;
 		}
 	) =>

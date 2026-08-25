@@ -61,16 +61,51 @@
 	// The page normally remounts per pathname ({#key routeKey} below). A held
 	// navigation (a rename moving the URL under the open note) keeps the key,
 	// so the mounted page absorbs the change in place instead of blanking.
-	let routeKey = $state(page.url.pathname);
+	//
+	// The four media-hub tabs collapse to a single key: they share the
+	// (hub)/+layout shell, so keeping the key stable across them stops the root
+	// {#key} from remounting the whole shell on every tab tap — the hub then
+	// swaps only its own content (with its own slide). The item route
+	// (/media/media/*) is a different layout group and keeps its own key.
+	const HUB_PATHS = new Set([
+		'/media',
+		'/media/library',
+		'/media/activity',
+		'/media/watchlist'
+	]);
+	function keyForPath(pathname: string): string {
+		return HUB_PATHS.has(pathname) ? 'media-hub' : pathname;
+	}
+	let routeKey = $state(keyForPath(page.url.pathname));
 	$effect(() => {
-		const pathname = page.url.pathname;
-		if (pathname === routeKey) return;
+		const nextKey = keyForPath(page.url.pathname);
+		if (nextKey === routeKey) return;
 		// The key is an opaque token, not a mirror of the URL: on a held
 		// navigation it simply keeps its old value, so the keyed block —
 		// and the page inside it — survives untouched.
 		if (consumeRouteKeyHold()) return;
-		routeKey = pathname;
+		routeKey = nextKey;
 	});
+
+	// Mobile route entrance: a subtle fade + short upward slide (in-only —
+	// an out transition would keep the old page in flow and shift layout).
+	// Desktop keeps the flat fade; reduced motion collapses to opacity only.
+	function routeIntro(_node: Element) {
+		const reduce =
+			typeof window !== 'undefined' &&
+			window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		const mobile =
+			typeof window !== 'undefined' &&
+			window.matchMedia('(max-width: 760px)').matches;
+		if (reduce) return { duration: 0, css: (t: number) => `opacity: ${t}` };
+		if (!mobile)
+			return { duration: 140, easing: cubicOut, css: (t: number) => `opacity: ${t}` };
+		return {
+			duration: 180,
+			easing: cubicOut,
+			css: (t: number, u: number) => `opacity: ${t}; transform: translateY(${10 * u}px)`
+		};
+	}
 
 	// Every navigation — link, goto, redirect, initial load — lands here, so
 	// the active tab always holds the URL actually being shown.
@@ -618,7 +653,7 @@
 			{#key routeKey}
 				<!-- In-only fade: an out transition would keep the old page in flow
 				     alongside the new one, shifting the whole layout mid-switch. -->
-				<div class="route-view" in:fade={{ duration: 140, easing: cubicOut }}>
+				<div class="route-view" in:routeIntro>
 					{@render children()}
 				</div>
 			{/key}
@@ -918,7 +953,11 @@
 			--bg-panel: #17171a;
 			--border: #2a2a2e;
 			--text: #ffffff;
-			--text-muted: #9c9ca3;
+			/* The media look owns the secondary colour on the CHROME too: the top
+			   bar wordmark and the tab-bar labels read white regardless of theme.
+			   .media-shell re-declares its own muted grey, so the media pages'
+			   internal hierarchy (stat labels, bylines) is unaffected. */
+			--text-muted: #ffffff;
 			--accent-soft: color-mix(in srgb, var(--accent) 16%, transparent);
 			--bg-hover: color-mix(in srgb, #ffffff 7%, transparent);
 			background: var(--bg);

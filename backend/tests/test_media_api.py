@@ -428,3 +428,22 @@ def test_timeline_limit_is_clamped(state):
     assert len(events) == 2
     # Newest first.
     assert events[0]["at"] >= events[1]["at"]
+
+
+def test_patch_total_pages(state):
+    """A book's total page count can be set/edited after creation (feeds the
+    'pages read' stat), which previously had no PATCH path."""
+    client = make_client(state, media_api.router)
+    created = create(client, "Untotaled", "book", status="active")
+    path = created["path"]
+    assert created["item"]["total"] is None
+
+    patched = client.patch(f"/api/media/{path}", json={"total": 320})
+    assert patched.status_code == 200, patched.text
+    assert patched.json()["item"]["total"] == 320
+    assert "total: 320" in patched.json()["content"]
+
+    # Edit it again, and reject nonsense.
+    assert client.patch(f"/api/media/{path}", json={"total": 336}).json()["item"]["total"] == 336
+    assert client.patch(f"/api/media/{path}", json={"total": 0}).status_code == 400
+    assert client.patch(f"/api/media/{path}", json={"total": -5}).status_code == 400

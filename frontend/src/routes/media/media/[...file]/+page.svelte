@@ -12,7 +12,7 @@
 	import type { LogRequest } from '$lib/media/mediaactions';
 	import { renderMarkdown } from '$lib/render';
 	import { forgetNoteThread, refreshNotes } from '$lib/stores.svelte';
-	import { confirmDialog, notify } from '$lib/ui.svelte';
+	import { confirmDialog, notify, promptDialog } from '$lib/ui.svelte';
 
 	let { data } = $props();
 
@@ -221,6 +221,28 @@
 	const barStatus = (status: MediaStatus) =>
 		runAction(async () => notify((await api.mediaPatch(path, { status })).summary + '.'));
 
+	// Books/TV carry a total (pages / episodes) that only creation set until
+	// now — editable here so the 'pages read' stat has a denominator. A plain
+	// prompt keeps it one tap from the standing line; the media theme reaches
+	// the dialog via :root[data-media-look].
+	const totalNoun = $derived(mediaType === 'book' ? 'pages' : 'episodes');
+	async function editTotal() {
+		if (busy) return;
+		const answer = await promptDialog(`Total ${totalNoun}`, {
+			title: item?.total ? `Edit ${totalNoun}` : `Set ${totalNoun}`,
+			value: item?.total ? String(item.total) : '',
+			placeholder: mediaType === 'book' ? 'e.g. 320' : 'e.g. 24',
+			confirmLabel: 'Save'
+		});
+		if (answer === null) return;
+		const n = Number(answer.trim());
+		if (!Number.isInteger(n) || n < 1) {
+			notify(`Enter a whole number of ${totalNoun}.`, { tone: 'error' });
+			return;
+		}
+		runAction(() => api.mediaPatch(path, { total: n }));
+	}
+
 	async function log(event: SubmitEvent) {
 		event.preventDefault();
 		if (busy) return;
@@ -414,9 +436,18 @@
 							<span>{statusLabel(item.status)}</span>
 							{#if item.rating != null}<span class="rated">{starText(item.rating)}</span>{/if}
 							{#if item.total}
-								<span class="total">
+								<button
+									type="button"
+									class="total"
+									onclick={editTotal}
+									title="Edit {totalNoun}"
+								>
 									{mediaType === 'book' ? `${item.total} pages` : mediaType === 'tv' ? `${item.total} episodes` : item.total}
-								</span>
+								</button>
+							{:else if mediaType === 'book' || mediaType === 'tv'}
+								<button type="button" class="total set-total" onclick={editTotal}>
+									Set {totalNoun}
+								</button>
 							{/if}
 						</p>
 					{/if}
@@ -818,6 +849,32 @@
 	.standing .rated {
 		color: var(--star);
 		font-weight: 600;
+	}
+	/* The total (pages / episodes) is editable — a tappable text control, not a
+	   button chrome. The dotted underline is the only affordance; feedback is
+	   colour, never movement. */
+	.standing .total {
+		border: 0;
+		background: none;
+		padding: 0;
+		font: inherit;
+		color: var(--text-muted);
+		border-bottom: 1px dotted currentColor;
+		line-height: 1.2;
+		cursor: pointer;
+	}
+	.standing .total:active {
+		color: var(--text);
+	}
+	.standing .set-total {
+		color: var(--accent);
+		border-bottom-color: var(--accent);
+	}
+	@media (max-width: 760px) {
+		/* A comfortable touch target without stretching the standing line. */
+		.standing .total {
+			padding: 6px 0;
+		}
 	}
 	.cols {
 		display: grid;

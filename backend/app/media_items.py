@@ -321,6 +321,7 @@ def apply_update(
     status: str | None = None,
     entry: dict | None = None,
     alias: str | None = None,
+    total: int | None = None,
     today: str,
 ) -> tuple[str, str]:
     """Apply a rating / status / log-entry update to note content.
@@ -389,6 +390,12 @@ def apply_update(
         meta["rating"] = rating
         summaries.append(f"Rated {rating}/10")
 
+    if total is not None:
+        if _valid_int(total, 1, 1_000_000) is None:
+            raise ValueError("total must be a whole number from 1 to 1000000")
+        meta["total"] = int(total)
+        summaries.append(f"Set total to {int(total)}")
+
     if alias is not None:
         alias = alias.strip()
         if alias:
@@ -399,7 +406,7 @@ def apply_update(
             summaries.append("Cleared alias")
 
     if not summaries:
-        raise ValueError("Nothing to update: pass a rating, status, alias, or log entry")
+        raise ValueError("Nothing to update: pass a rating, status, total, alias, or log entry")
     return fm.serialize(meta, body), "; ".join(dict.fromkeys(summaries))
 
 

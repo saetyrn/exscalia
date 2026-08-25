@@ -86,20 +86,30 @@ const bulletByDepth = BULLET_SHAPES.map((shape) =>
 // same muted formatted-list styling as bullets.
 const numberMark = Decoration.mark({ class: 'cm-list-number' });
 
-// Extra visual indent per nesting level past the first, on top of the two
-// space characters already in the document. Two UI-font spaces are ~0.56em,
-// so 0.14em/level ≈ a quarter more depth (the requested 1.25x).
+// A hanging indent for wrapped list items. Without it, a bullet whose text
+// spills onto a second visual row sends that row to the left margin — left of
+// the bullet itself — instead of hanging under the item's text. `padding-left`
+// holds every wrapped row at the content column; the matching negative
+// `text-indent` pulls the first row (leading spaces + marker) back to the
+// normal gutter, so the marker still sits where it did. 6px is CodeMirror's
+// default `.cm-line` left padding, kept so list lines start where prose does;
+// the per-level bump keeps nesting a touch deeper (the earlier 1.25x request).
+const LINE_PAD_LEFT_PX = 6; // CodeMirror default `.cm-line` padding-left
 const INDENT_EXTRA_EM = 0.14;
-const indentLineCache = new Map<number, Decoration>();
-function listIndentLine(depth: number): Decoration {
-	let deco = indentLineCache.get(depth);
+const indentLineCache = new Map<string, Decoration>();
+function listHangIndent(cols: number, depth: number): Decoration {
+	const key = `${cols}:${depth}`;
+	let deco = indentLineCache.get(key);
 	if (!deco) {
-		// margin, not padding: .cm-line carries CodeMirror's own base padding,
-		// and an inline padding-left would replace it instead of adding.
+		const bump = ((depth - 1) * INDENT_EXTRA_EM).toFixed(2);
 		deco = Decoration.line({
-			attributes: { style: `margin-left: ${((depth - 1) * INDENT_EXTRA_EM).toFixed(2)}em` }
+			attributes: {
+				style:
+					`padding-left: calc(${LINE_PAD_LEFT_PX}px + ${cols}ch + ${bump}em);` +
+					` text-indent: -${cols}ch;`
+			}
 		});
-		indentLineCache.set(depth, deco);
+		indentLineCache.set(key, deco);
 	}
 	return deco;
 }
@@ -147,15 +157,18 @@ function collectFormat(
 					for (let p = node.node.parent; p; p = p.parent) {
 						if (p.name === 'BulletList' || p.name === 'OrderedList') depth++;
 					}
-					// The document's own nesting indent (two spaces a level) reads
-					// shallow, so nested lines get visual padding on top — ~25%
-					// over the character indent per level. Padding, not wider
-					// characters: wrapped rows shift with the line box, and the
-					// text stays byte-identical.
-					if (depth > 1) {
-						const line = doc.lineAt(node.from);
-						into.push(listIndentLine(depth).range(line.from));
+					// Hang wrapped rows under the item text (and give nested items
+					// the ~25%-deeper bump). `cols` = characters before the item
+					// content: leading indent + marker + the space(s) after it.
+					const line = doc.lineAt(node.from);
+					let contentStart = node.to;
+					while (
+						contentStart < line.to &&
+						state.sliceDoc(contentStart, contentStart + 1) === ' '
+					) {
+						contentStart += 1;
 					}
+					into.push(listHangIndent(contentStart - line.from, depth).range(line.from));
 					// Ordered marks ("1.") keep their number, restyled — pure
 					// styling, so it applies even on the active line.
 					if (/^\d+[.)]$/.test(mark)) {
