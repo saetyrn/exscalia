@@ -92,9 +92,6 @@
 		];
 		if (notePath) {
 			base.push(
-				{ id: 'format', label: 'Toggle formatted / raw mode', hint: '', keywords: 'markdown', run: () => {
-					window.dispatchEvent(new CustomEvent('exscalia:toggle-format'));
-				} },
 				{ id: 'history', label: 'Version history', hint: '', keywords: 'restore revisions', run: () => goto(`/history?path=${encodeURIComponent(notePath)}`) },
 				{ id: 'rename', label: 'Rename current note', hint: '', keywords: 'move title', run: () => {
 					window.dispatchEvent(new CustomEvent('exscalia:rename-note'));

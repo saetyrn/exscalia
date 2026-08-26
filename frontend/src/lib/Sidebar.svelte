@@ -879,6 +879,7 @@
 		ondrop={(e) => contentsDrop(e, '')}
 	>
 		{#if pinnedNotes.length > 0}
+			<div class="pinned-sticky">
 			<button
 				type="button"
 				class="item folder"
@@ -906,6 +907,7 @@
 					{/each}
 				</div>
 			{/if}
+			</div>
 		{/if}
 
 		{#snippet levelView(nodes: TreeNode[], depth: number)}
@@ -1472,6 +1474,15 @@
 	}
 	.folder-contents {
 		transform-origin: top;
+	}
+.pinned-sticky {
+		position: sticky;
+		top: 0;
+		z-index: 3;
+		background: var(--bg-panel);
+	}
+	aside.media-mode .pinned-sticky {
+		background: var(--bg);
 	}
 	.folder-row {
 		display: flex;

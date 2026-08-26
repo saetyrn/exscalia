@@ -86,6 +86,47 @@ const bulletByDepth = BULLET_SHAPES.map((shape) =>
 // same muted formatted-list styling as bullets.
 const numberMark = Decoration.mark({ class: 'cm-list-number' });
 
+// Read-mode look, brought into live preview. Blockquotes gain a left border,
+// fenced code a panel background (its fence lines muted), and inline code a
+// subtle chip — one line/mark decoration each, height-neutral so a view plugin
+// may provide them.
+const quoteLineDeco = Decoration.line({ class: 'cm-blockquote' });
+const codeBlockLineDeco = Decoration.line({ class: 'cm-code-block' });
+const codeFenceLineDeco = Decoration.line({ class: 'cm-code-block cm-code-fence' });
+const inlineCodeMark = Decoration.mark({ class: 'cm-inline-code' });
+
+/** A `---`/`***` thematic break, drawn as a rule when the caret is elsewhere.
+ *  Replacing the source with a widget (rather than a `display:none` line) keeps
+ *  the caret out of it — the same contract the bullets and hidden markers use. */
+class RuleWidget extends WidgetType {
+	eq() {
+		return true;
+	}
+	toDOM() {
+		const span = document.createElement('span');
+		span.className = 'cm-hr';
+		return span;
+	}
+	// A click lands the caret next to the rule, which reveals the raw `---`.
+	ignoreEvent() {
+		return false;
+	}
+}
+const ruleDeco = Decoration.replace({ widget: new RuleWidget() });
+
+/** Last line of a leading `---` frontmatter block, or 0 for none. The body's
+ *  own `---` rules render, but the frontmatter fences are hidden as a block by
+ *  the metadata field — drawing a rule over them too would collide. */
+function frontmatterEndLine(doc: Text): number {
+	if (doc.lines < 2 || doc.line(1).text.trim() !== '---') return 0;
+	for (let n = 2; n <= doc.lines; n += 1) {
+		if (doc.line(n).text.trim() === '---') return n;
+	}
+	return 0;
+}
+
+const FENCE_RE = /^\s*(?:```|~~~)/;
+
 // A hanging indent for wrapped list items. Without it, a bullet whose text
 // spills onto a second visual row sends that row to the left margin — left of
 // the bullet itself — instead of hanging under the item's text. `padding-left`
@@ -139,6 +180,7 @@ function collectFormat(
 	atomic: Decorated[]
 ): void {
 	const doc = state.doc;
+	const frontmatterEnd = frontmatterEndLine(doc);
 
 	const hide = (from: number, to: number, deco: Decoration) => {
 		into.push(deco.range(from, to));
@@ -146,10 +188,70 @@ function collectFormat(
 	};
 
 	for (const { from, to } of ranges) {
+		// Line decorations for the visible portion of a multi-line block.
+		const decorateLines = (nodeFrom: number, nodeTo: number, fenceAware: boolean) => {
+			const firstLine = doc.lineAt(Math.max(from, nodeFrom)).number;
+			const lastLine = doc.lineAt(Math.min(to, Math.max(nodeFrom, nodeTo))).number;
+			for (let ln = firstLine; ln <= lastLine; ln += 1) {
+				const line = doc.line(ln);
+				if (fenceAware) {
+					into.push(
+						(FENCE_RE.test(line.text) ? codeFenceLineDeco : codeBlockLineDeco).range(line.from)
+					);
+				} else {
+					into.push(quoteLineDeco.range(line.from));
+				}
+			}
+		};
+
 		syntaxTree(state).iterate({
 			from,
 			to,
 			enter(node) {
+				if (node.name === 'Blockquote') {
+					// The `>` marks are hidden by the QuoteMark pass below; this adds
+					// the left-border block that reads like read mode.
+					decorateLines(node.from, node.to, false);
+					return;
+				}
+				if (node.name === 'FencedCode') {
+					decorateLines(node.from, node.to, true);
+					// Nothing inside needs marker hiding — the fence lines are muted
+					// as whole lines and the body is highlighted separately.
+					return false;
+				}
+				if (node.name === 'HorizontalRule') {
+					const line = doc.lineAt(node.from).number;
+					// A `---` inside the frontmatter fence is the block the metadata
+					// field already hides; leave it to that one.
+					if (frontmatterEnd && line <= frontmatterEnd) return;
+					if (!revealed.has(line)) hide(node.from, node.to, ruleDeco);
+					return;
+				}
+				if (node.name === 'InlineCode') {
+					// A mark (not a replace): the caret sits in it normally, the
+					// backtick CodeMarks inside are hidden by the pass below.
+					into.push(inlineCodeMark.range(node.from, node.to));
+					return;
+				}
+				if (node.name === 'Link') {
+					const line = doc.lineAt(node.from).number;
+					if (revealed.has(line)) return;
+					// Only an inline `[text](url)` link is condensed to its text.
+					// A shortcut/reference link (no URL) — which is how `[[wiki]]`
+					// parses — keeps its brackets, so its own rendering is untouched.
+					const marks: { from: number; to: number }[] = [];
+					let hasUrl = false;
+					for (let child = node.node.firstChild; child; child = child.nextSibling) {
+						if (child.name === 'LinkMark') marks.push({ from: child.from, to: child.to });
+						else if (child.name === 'URL') hasUrl = true;
+					}
+					if (!hasUrl || marks.length < 2) return;
+					// Hide the opening `[` and the trailing `](url)`, leaving `text`.
+					hide(marks[0].from, marks[0].to, Decoration.replace({}));
+					hide(marks[1].from, node.to, Decoration.replace({}));
+					return;
+				}
 				if (node.name === 'ListMark') {
 					const mark = state.sliceDoc(node.from, node.to);
 					// Nesting depth = enclosing list count: 1 at the top level.
@@ -307,7 +409,35 @@ const formatModeTheme = EditorView.baseTheme({
 		height: '0.315em',
 		borderRadius: '0.045em'
 	},
-	'.cm-list-number': { color: 'var(--text-muted, inherit)' }
+	'.cm-list-number': { color: 'var(--text-muted, inherit)' },
+	// Blockquote: the read-mode left rule. QuoteMark hiding handles the `>`.
+	'.cm-line.cm-blockquote': {
+		borderLeft: '3px solid var(--border)',
+		paddingLeft: '14px',
+		color: 'var(--text-muted)'
+	},
+	// Fenced code: a panel-backed block, its ``` fence lines muted.
+	'.cm-line.cm-code-block': {
+		background: 'var(--bg-panel)',
+		fontFamily: 'var(--font-mono)',
+		fontSize: '0.9em'
+	},
+	'.cm-line.cm-code-fence': { color: 'var(--text-muted)' },
+	// Inline code chip.
+	'.cm-inline-code': {
+		background: 'var(--bg-panel)',
+		borderRadius: '4px',
+		padding: '1px 5px',
+		fontFamily: 'var(--font-mono)',
+		fontSize: '0.9em'
+	},
+	// Thematic break, drawn where the `---` source used to sit.
+	'.cm-hr': {
+		display: 'inline-block',
+		width: '100%',
+		borderTop: '1px solid var(--border)',
+		verticalAlign: 'middle'
+	}
 });
 
 /** Line numbers currently on screen, ascending and without repeats.

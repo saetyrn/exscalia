@@ -86,23 +86,33 @@
 
 	/** Images staged for the next message. Uploaded to the vault immediately so
 	 * the request carries paths, not base64 — thread JSON is git-committed. */
-	let pending = $state<{ path: string; url: string; name: string; pdf?: boolean }[]>([]);
+	let pending = $state<
+		{ path: string; url: string; name: string; pdf?: boolean; doc?: boolean }[]
+	>([]);
 	let uploading = $state(0);
 	let dragging = $state(false);
 	let fileInput: HTMLInputElement | undefined = $state();
 
 	const IMAGE_TYPES = /^image\/(png|jpeg|gif|webp|avif)$/;
 	const PDF_TYPE = 'application/pdf';
+	const DOCX_TYPE =
+		'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
 	const MAX_IMAGES = 4;
 
-	const attachable = (file: File) => IMAGE_TYPES.test(file.type) || file.type === PDF_TYPE;
+	// Some browsers report an empty type for a dropped .docx, so fall back to the
+	// filename extension.
+	const isDocx = (file: File) =>
+		file.type === DOCX_TYPE || /\.docx$/i.test(file.name || '');
+
+	const attachable = (file: File) =>
+		IMAGE_TYPES.test(file.type) || file.type === PDF_TYPE || isDocx(file);
 
 	async function attachFiles(files: Iterable<File>) {
 		const images = [...files].filter(attachable);
 		if (!images.length) return;
 		const room = MAX_IMAGES - pending.length;
 		if (room <= 0) {
-			notify(`OMNIA can look at ${MAX_IMAGES} files at a time.`, { tone: 'error' });
+			notify(`OMNIA can take ${MAX_IMAGES} files at a time.`, { tone: 'error' });
 			return;
 		}
 		for (const file of images.slice(0, room)) {
@@ -113,7 +123,13 @@
 				if (!pending.some((p) => p.path === path)) {
 					pending = [
 						...pending,
-						{ path, url, name: file.name || 'file', pdf: file.type === PDF_TYPE }
+						{
+							path,
+							url,
+							name: file.name || 'file',
+							pdf: file.type === PDF_TYPE,
+							doc: isDocx(file)
+						}
 					];
 				}
 			} catch (cause) {
@@ -560,6 +576,8 @@
 							<a {href} target="_blank" rel="noreferrer">
 								{#if /\.pdf$/i.test(image)}
 									<span class="sent-doc">PDF · {image.split('/').pop()}</span>
+								{:else if /\.docx$/i.test(image)}
+									<span class="sent-doc">DOC · {image.split('/').pop()}</span>
 								{:else}
 									<img src={href} alt="Attached" />
 								{/if}
@@ -705,11 +723,11 @@
 		<div class="attached">
 			{#each pending as image (image.path)}
 				<span class="thumb" transition:fade={{ duration: 120 }}>
-					{#if image.pdf}
-						<!-- A PDF has no thumbnail; show its name so you can tell two apart. -->
+					{#if image.pdf || image.doc}
+						<!-- A document has no thumbnail; show its name so you can tell two apart. -->
 						<span class="doc" title={image.name}>
-							<strong>PDF</strong>
-							<small>{image.name.replace(/\.pdf$/i, '')}</small>
+							<strong>{image.doc ? 'DOC' : 'PDF'}</strong>
+							<small>{image.name.replace(/\.(pdf|docx)$/i, '')}</small>
 						</span>
 					{:else}
 						<img src={image.url} alt={image.name} />
@@ -742,7 +760,7 @@
 	>
 		<input
 			type="file"
-			accept="image/png,image/jpeg,image/gif,image/webp,image/avif,application/pdf"
+			accept="image/png,image/jpeg,image/gif,image/webp,image/avif,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,.docx"
 			multiple
 			hidden
 			bind:this={fileInput}
@@ -755,8 +773,8 @@
 		<button
 			type="button"
 			class="attach"
-			title="Attach an image or PDF"
-			aria-label="Attach an image or PDF"
+			title="Attach an image, PDF or Word doc"
+			aria-label="Attach an image, PDF or Word doc"
 			disabled={!overseerStatus.available}
 			onclick={() => fileInput?.click()}
 		>

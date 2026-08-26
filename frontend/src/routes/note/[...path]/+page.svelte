@@ -67,7 +67,7 @@
 		taskStatusControls,
 		taskStatusTheme
 	} from '$lib/formatmode';
-	import { extractHeadings, noteStats, renderNote } from '$lib/render';
+	import { extractHeadings, noteStats } from '$lib/render';
 	import { confirmDialog, notify, promptDialog } from '$lib/ui.svelte';
 	import { wikilinkAutocomplete, wikilinkClick } from '$lib/wikilink';
 
@@ -128,28 +128,11 @@
 		};
 	});
 
-	// View mode cycles Read → Formatted → Raw.
-	//  read      — rendered document (tables, images, math); not editable
-	//  formatted — live preview: syntax markers hidden except on the active line
-	//  raw       — plain markdown source
-	// Persisted, migrating the older boolean `omnia.format` key.
-	type ViewMode = 'read' | 'formatted' | 'raw';
-	const VIEW_MODES: ViewMode[] = ['read', 'formatted', 'raw'];
-	const VIEW_LABELS: Record<ViewMode, string> = {
-		read: 'Read',
-		formatted: 'Formatted',
-		raw: 'Raw markdown'
-	};
-
-	let viewMode = $state<ViewMode>(
-		(() => {
-			if (typeof localStorage === 'undefined') return 'formatted';
-			const saved = localStorage.getItem('omnia.viewMode');
-			if (saved === 'read' || saved === 'formatted' || saved === 'raw') return saved;
-			return localStorage.getItem('omnia.format') === '0' ? 'raw' : 'formatted';
-		})()
-	);
-	let formatOn = $derived(viewMode === 'formatted');
+	// One view, always editable: a live-preview editor. Markdown syntax renders
+	// in place (headings sized, bold/quote/code styled, markers hidden) and the
+	// caret's own line reveals its raw markdown so everything stays editable.
+	// The old Read/Formatted/Raw cycle — and its `omnia.viewMode`/`omnia.format`
+	// localStorage keys — is gone.
 
 	type PanelTab = 'tags' | 'info' | 'omnia' | 'calendar' | 'activity' | 'review' | 'media';
 
@@ -314,19 +297,8 @@
 		void loadCalendarMonth(year, month);
 	});
 
-	function toggleFormat() {
-		const next = VIEW_MODES[(VIEW_MODES.indexOf(viewMode) + 1) % VIEW_MODES.length];
-		setViewMode(next);
-	}
-
-	/** Jump to a heading from the outline, in whichever mode is showing. */
+	/** Jump to a heading from the outline. */
 	function scrollToLine(line: number) {
-		if (viewMode === 'read') {
-			const index = headings.findIndex((h) => h.line === line);
-			const target = document.querySelectorAll('.reading h1, .reading h2, .reading h3, .reading h4, .reading h5, .reading h6')[index];
-			target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-			return;
-		}
 		editor?.revealLine(line);
 	}
 
@@ -335,7 +307,6 @@
 	let fileInput: HTMLInputElement | undefined = $state();
 
 	function pickAttachment() {
-		if (viewMode === 'read') setViewMode('formatted');
 		fileInput?.click();
 	}
 
@@ -344,19 +315,6 @@
 		const files = [...(input.files ?? [])];
 		input.value = ''; // let the same file be picked again
 		if (files.length) editor?.insertAttachments(files);
-	}
-
-	function setViewMode(next: ViewMode) {
-		const leavingRead = viewMode === 'read' && next !== 'read';
-		viewMode = next;
-		// The editor is hidden rather than unmounted, so it cannot measure itself
-		// while it is off screen; nudge it once it is visible again.
-		if (leavingRead) void tick().then(() => editor?.remeasure());
-		try {
-			localStorage.setItem('omnia.viewMode', next);
-		} catch {
-			// The mode still applies for this page when storage is unavailable.
-		}
 	}
 
 
@@ -375,19 +333,17 @@
 		})
 	];
 
-	// The formatted view, swapped through a compartment. Built once so the
-	// identity only changes when the mode does — a new array would reconfigure
-	// (and so rebuild every plugin's decorations) for nothing.
+	// The live-preview bundle, handed to the editor through its compartment. It
+	// is always on now — there is only one view — and built once so its identity
+	// never changes, so the compartment is never needlessly reconfigured.
 	// `formatMode` carries the inline images and math too — one plugin, one
 	// decoration set (it was two, walking the viewport twice per keystroke).
-	const formatExtensions = [
+	const dynamicEditorExtensions: Extension[] = [
 		formatMode,
 		formattedMetadata,
 		taskStatusControls(updateInlineTask),
 		taskStatusTheme
 	];
-	const noExtensions: Extension[] = [];
-	let dynamicEditorExtensions = $derived(formatOn ? formatExtensions : noExtensions);
 
 
 	async function updateInlineTask(id: string, status: 'todo' | 'in_progress' | 'done') {
@@ -470,11 +426,6 @@
 	// Reactive so Read mode, the outline, and word count track live edits.
 	let doc = $state('');
 
-	let renderedHtml = $derived(
-		viewMode === 'read'
-			? renderNote(doc, { resolveNote: (name) => findNoteByName(name)?.path ?? null })
-			: ''
-	);
 	let headings = $derived(extractHeadings(doc));
 	let stats = $derived(noteStats(doc));
 	let saveTimer: ReturnType<typeof setTimeout> | null = null;
@@ -705,7 +656,6 @@
 		scanning = true;
 		try {
 			if (!(await isAutocorrectEnabled())) return;
-			if (viewMode === 'read') return; // reading, not writing
 			if (document.visibilityState !== 'visible') return;
 			if (remoteConflict || recoveryPending) return;
 			// Never scan or splice mid-composition: the IME owns an uncommitted
@@ -1381,14 +1331,11 @@
 	}
 
 	$effect(() => {
-		const toggle = () => toggleFormat();
 		const renameCurrent = () => void rename();
 		const deleteCurrent = () => void remove();
-		window.addEventListener('exscalia:toggle-format', toggle);
 		window.addEventListener('exscalia:rename-note', renameCurrent);
 		window.addEventListener('exscalia:delete-note', deleteCurrent);
 		return () => {
-			window.removeEventListener('exscalia:toggle-format', toggle);
 			window.removeEventListener('exscalia:rename-note', renameCurrent);
 			window.removeEventListener('exscalia:delete-note', deleteCurrent);
 		};
@@ -1455,13 +1402,6 @@
 					</span>
 				{/key}
 			</span>
-			<button
-				class:mode-on={viewMode !== 'raw'}
-				onclick={toggleFormat}
-				title="View: {VIEW_LABELS[viewMode]}. Click to cycle Read → Formatted → Raw."
-			>
-				¶ {VIEW_LABELS[viewMode]}
-			</button>
 			{#if dailyDate}
 				<!-- Dailies get neighbours instead of file actions: they're not
 				     renamed, pinned or deleted day to day, and History still
@@ -1521,19 +1461,8 @@
 				multiple
 				onchange={onFilesPicked}
 			/>
-			{#if viewMode === 'read'}
-				<article class="reading">
-					<!-- eslint-disable-next-line svelte/no-at-html-tags -- sanitized in render.ts -->
-					{@html renderedHtml}
-				</article>
-			{/if}
-			<!-- Hidden, never unmounted. Read mode used to unmount this, and the
-			     fresh instance reseeded from note.content — which only updates on
-			     a successful save — so toggling Read mid-debounce silently threw
-			     away whatever had just been typed, then wrote the stale text back
-			     over the file and the draft. Undo history and scroll position
-			     went with it. -->
-			<div class="editor-host" class:hidden={viewMode === 'read'}>
+			<!-- The one view: an always-live editor. -->
+			<div class="editor-host">
 				<Editor
 					bind:this={editor}
 					path={note.path}
@@ -1680,18 +1609,6 @@
 						</button>
 					{/if}
 					<span class="rail-sep" aria-hidden="true"></span>
-					<!-- Same 3-state cycle as the header button: the old 2-state
-					     label here could not even express Read mode. -->
-					<button
-						class:mode-on={formatOn}
-						onclick={toggleFormat}
-						title="View: {VIEW_LABELS[viewMode]}. Click to cycle Read → Formatted → Raw."
-						aria-label="Cycle view mode"
-						data-label={VIEW_LABELS[viewMode]}
-					>
-						<span aria-hidden="true">¶</span>
-						<span class="rail-label">{VIEW_LABELS[viewMode]}</span>
-					</button>
 					<button
 						onclick={togglePin}
 						title={isPinned ? 'Unpin this note' : 'Pin to sidebar'}
@@ -2098,9 +2015,6 @@
 	.save-state.error {
 		color: var(--danger);
 	}
-	.mode-on {
-		color: var(--accent);
-	}
 	.body {
 		flex: 1;
 		min-height: 0;
@@ -2118,117 +2032,8 @@
 		flex: 1;
 		min-height: 0;
 	}
-	.editor-host.hidden {
-		display: none;
-	}
 	.file-input {
 		display: none;
-	}
-	/* Read mode: the note as a finished document. Mirrors the editor's
-	   centered 760px measure so switching modes doesn't shift the text. */
-	.reading {
-		flex: 1;
-		min-height: 0;
-		width: 100%;
-		overflow-y: auto;
-		max-width: 760px;
-		margin: 0 auto;
-		padding: 10px 32px 40vh;
-		font-size: 15px;
-		line-height: 1.65;
-	}
-	.reading :global(h1),
-	.reading :global(h2),
-	.reading :global(h3) {
-		margin: 1.4em 0 0.5em;
-		line-height: 1.25;
-	}
-	.reading :global(h1) {
-		font-size: 1.6em;
-	}
-	.reading :global(h2) {
-		font-size: 1.32em;
-	}
-	.reading :global(h3) {
-		font-size: 1.14em;
-	}
-	.reading :global(p),
-	.reading :global(ul),
-	.reading :global(ol),
-	.reading :global(blockquote) {
-		margin: 0 0 0.9em;
-	}
-	/* Keep the shape of what was typed: HTML would otherwise collapse leading
-	   tabs/spaces and fold single line breaks, so an indented, line-per-thought
-	   note read as one run-on paragraph. Scoped to paragraphs — lists, tables
-	   and headings still need normal whitespace handling. */
-	/* Indentation is preserved in render.ts (preserveIndentation) rather than
-	   with `white-space: pre-wrap` here — that kept every source line break and
-	   stopped hard-wrapped paragraphs from reflowing. */
-	.reading :global(a) {
-		color: var(--accent);
-	}
-	.reading :global(.dead-link) {
-		color: var(--text-muted);
-		border-bottom: 1px dotted var(--text-muted);
-	}
-	.reading :global(img) {
-		max-width: 100%;
-		border: 1px solid var(--border);
-		border-radius: 8px;
-	}
-	.reading :global(blockquote) {
-		padding-left: 14px;
-		border-left: 3px solid var(--border);
-		color: var(--text-muted);
-	}
-	.reading :global(code) {
-		padding: 1px 5px;
-		border-radius: 4px;
-		background: var(--bg-panel);
-		font-family: var(--font-mono);
-		font-size: 0.9em;
-	}
-	.reading :global(pre) {
-		overflow-x: auto;
-		padding: 12px 14px;
-		border: 1px solid var(--border);
-		border-radius: 8px;
-		background: var(--bg-panel);
-	}
-	.reading :global(pre code) {
-		padding: 0;
-		background: none;
-	}
-	/* Tables are the reason Accounting notes need Read mode at all. */
-	.reading :global(table) {
-		width: 100%;
-		margin: 0 0 1em;
-		border-collapse: collapse;
-		font-size: 0.95em;
-	}
-	.reading :global(th),
-	.reading :global(td) {
-		padding: 6px 10px;
-		border: 1px solid var(--border);
-		text-align: left;
-	}
-	.reading :global(th) {
-		background: var(--bg-panel);
-		font-weight: 600;
-	}
-	.reading :global(tbody tr:nth-child(even)) {
-		background: color-mix(in srgb, var(--bg-panel) 45%, transparent);
-	}
-	.reading :global(hr) {
-		border: none;
-		border-top: 1px solid var(--border);
-		margin: 1.6em 0;
-	}
-	.reading :global(.katex-display) {
-		overflow-x: auto;
-		overflow-y: hidden;
-		padding: 2px 0;
 	}
 	.panel {
 		width: 230px;

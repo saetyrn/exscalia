@@ -166,3 +166,59 @@ def _b64(raw: bytes) -> str:
     import base64
 
     return base64.b64encode(raw).decode("ascii")
+
+
+def _docx_bytes(paragraphs: list[str]) -> bytes:
+    from docx import Document
+
+    doc = Document()
+    for line in paragraphs:
+        doc.add_paragraph(line)
+    buf = io.BytesIO()
+    doc.save(buf)
+    return buf.getvalue()
+
+
+def _put_docx(state, name: str, paragraphs: list[str]) -> str:
+    rel = f"attachments/{name}"
+    p = state.store.resolve_attachment(rel)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_bytes(_docx_bytes(paragraphs))
+    return rel
+
+
+def test_attached_docx_reaches_the_model_as_a_text_block(state):
+    rel = _put_docx(state, "brief-l12.docx", ["Quarterly brief", "Revenue is up 12%."])
+    provider = FakeProvider([ProviderReply(text="Got it.", stop_reason="end_turn")])
+
+    asyncio.run(Overseer(provider, state).chat("summarize this", images=[rel]))
+
+    sent = provider.seen[-1][0]
+    # No document/image block — the docx becomes a second text block.
+    assert [b["type"] for b in sent["content"]] == ["text", "text"]
+    doc_block = sent["content"][1]
+    assert "[Attached document: brief-l12.docx]" in doc_block["text"]
+    assert "Quarterly brief" in doc_block["text"]
+    assert "Revenue is up 12%." in doc_block["text"]
+
+
+def test_corrupt_docx_degrades_gracefully(state):
+    rel = "attachments/broken-m13.docx"
+    p = state.store.resolve_attachment(rel)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_bytes(b"definitely not a docx")
+    provider = FakeProvider([ProviderReply(text="ok", stop_reason="end_turn")])
+
+    # The turn still completes; the model just gets a note that it failed.
+    asyncio.run(Overseer(provider, state).chat("read this", images=[rel]))
+
+    sent = provider.seen[-1][0]
+    assert [b["type"] for b in sent["content"]] == ["text", "text"]
+    assert "could not be read" in sent["content"][1]["text"]
+
+
+def test_docx_is_attachable_alongside_images_and_pdfs(state):
+    docx = _put_docx(state, "memo-n14.docx", ["Hello"])
+    pdf = _put_pdf(state, "sheet-o15.pdf")
+    png = _put(state, "photo-p16.png")
+    assert _validated_images(state, [docx, pdf, png]) == [docx, pdf, png]

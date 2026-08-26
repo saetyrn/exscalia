@@ -88,6 +88,72 @@ describe('buildFormatDecorations — what the caret may enter', () => {
 	});
 });
 
+describe('read-mode fidelity — blockquote, code, rule, inline code, links', () => {
+	it('gives a blockquote a line decoration and hides its `>`', () => {
+		const { decorations, atomic } = format('> quote');
+		// [0,0] is the .cm-blockquote line style; [0,2] hides `> ` (mark + space).
+		expect(spans(decorations)).toEqual([
+			[0, 0],
+			[0, 2]
+		]);
+		expect(spans(atomic)).toEqual([[0, 2]]);
+	});
+
+	it('styles fenced-code lines and does not descend into the fence', () => {
+		// Three line decorations (two fences + the body line); no markers hidden,
+		// so nothing atomic — the ``` fences are muted whole-line, not replaced.
+		const { decorations, atomic } = format('```\ncode\n```');
+		expect(spans(decorations)).toEqual([
+			[0, 0],
+			[4, 4],
+			[9, 9]
+		]);
+		expect(spans(atomic)).toEqual([]);
+	});
+
+	it('replaces a horizontal rule the caret is not on', () => {
+		// `text` on line 1, a blank line, then `---` on line 3.
+		const { decorations, atomic } = format('text\n\n---');
+		expect(spans(decorations)).toEqual([[6, 9]]);
+		expect(spans(atomic)).toEqual([[6, 9]]);
+	});
+
+	it('reveals the rule source when the caret is on it', () => {
+		expect(spans(formatMarked('text\n\n--|-').decorations)).toEqual([]);
+	});
+
+	it('marks inline code and still hides its backticks', () => {
+		const { decorations, atomic } = format('a `b` c');
+		// The chip mark spans the whole `` `b` ``; the two backticks are hidden.
+		expect(spans(decorations)).toEqual([
+			[2, 3],
+			[2, 5],
+			[4, 5]
+		]);
+		expect(spans(atomic)).toEqual([
+			[2, 3],
+			[4, 5]
+		]);
+	});
+
+	it('condenses an inline `[text](url)` link to its text', () => {
+		const { decorations, atomic } = format('[a](b)');
+		// Hide the opening `[` and the trailing `](b)`, leaving `a`.
+		expect(spans(decorations)).toEqual([
+			[0, 1],
+			[2, 6]
+		]);
+		expect(spans(atomic)).toEqual([
+			[0, 1],
+			[2, 6]
+		]);
+	});
+
+	it('leaves a `[[wikilink]]` untouched — it has no URL', () => {
+		expect(spans(format('[[Foo]]').decorations)).toEqual([]);
+	});
+});
+
 describe('buildLiveDecorations — one set for markers and inline media', () => {
 	// `\n\n|` parks the caret clear of everything, as `format` does above.
 	const merged = (doc: string) => {

@@ -5,9 +5,16 @@ import uuid
 from datetime import date, datetime
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
+from ..vault.notes import NoteError
 from .persona import PERSONA, PERSONA_OVERRIDES, PERSONA_REMINDER, REMINDER_AFTER_MESSAGES
 from .provider import LLMProvider, document_block, image_block
-from .vision import is_document, load_document, load_image
+from .vision import (
+    is_document,
+    is_text_document,
+    load_document,
+    load_image,
+    load_text_document,
+)
 from .tools import (
     SUGGESTION_TOOL_DEFS,
     TOOL_DEFS,
@@ -449,7 +456,27 @@ class Overseer:
             # a tool call. Loading also downscales images.
             blocks: list[dict] = [{"type": "text", "text": message}] if message else []
             for rel_path in images[:MAX_MESSAGE_IMAGES]:
-                if is_document(rel_path):
+                if is_text_document(rel_path):
+                    # .docx et al can't go to any provider natively — extract
+                    # the text and hand it over as a plain text block, framed so
+                    # the model knows it's a downgrade, not the live document.
+                    try:
+                        doc = load_text_document(self.state.store, rel_path)
+                    except NoteError as exc:
+                        blocks.append(
+                            {
+                                "type": "text",
+                                "text": f"[Attached document could not be read: {exc.detail}]",
+                            }
+                        )
+                    else:
+                        blocks.append(
+                            {
+                                "type": "text",
+                                "text": f"[Attached document: {doc['name']}]\n\n{doc['text']}",
+                            }
+                        )
+                elif is_document(rel_path):
                     loaded = load_document(self.state.store, rel_path)
                     blocks.append(
                         document_block(

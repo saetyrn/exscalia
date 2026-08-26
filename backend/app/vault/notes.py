@@ -59,6 +59,7 @@ class NoteStore:
         ".avif",
         ".svg",
         ".pdf",
+        ".docx",
     }
 
     def resolve_attachment(self, rel_path: str) -> Path:

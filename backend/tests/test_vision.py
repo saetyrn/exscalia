@@ -94,3 +94,74 @@ def test_image_blocks_translate_for_every_provider():
 def test_text_only_turns_keep_their_simple_shape():
     history = [{"role": "user", "content": [{"type": "text", "text": "hello"}]}]
     assert to_openai_messages(history) == [{"role": "user", "content": "hello"}]
+
+
+def _docx(paragraphs: list[str], table: list[list[str]] | None = None) -> bytes:
+    from docx import Document
+
+    doc = Document()
+    for line in paragraphs:
+        doc.add_paragraph(line)
+    if table:
+        t = doc.add_table(rows=len(table), cols=len(table[0]))
+        for r, row in enumerate(table):
+            for c, value in enumerate(row):
+                t.cell(r, c).text = value
+    buffer = io.BytesIO()
+    doc.save(buffer)
+    return buffer.getvalue()
+
+
+def test_docx_text_is_extracted_with_paragraphs_and_tables(tmp_path):
+    from app.overseer.vision import is_text_document, load_text_document
+
+    raw = _docx(
+        ["Meeting notes", "Ship the docx feature."],
+        table=[["Task", "Owner"], ["Backend", "Ada"]],
+    )
+    store = _write_attachment(tmp_path, "notes-d4.docx", raw)
+
+    assert is_text_document("attachments/notes-d4.docx")
+    loaded = load_text_document(store, "attachments/notes-d4.docx")
+
+    assert loaded["name"] == "notes-d4.docx"
+    assert "Meeting notes" in loaded["text"]
+    assert "Ship the docx feature." in loaded["text"]
+    # Table cells are flattened row by row.
+    assert "Task | Owner" in loaded["text"]
+    assert "Backend | Ada" in loaded["text"]
+
+
+def test_docx_is_truncated_when_oversized(tmp_path):
+    from app.overseer.vision import MAX_TEXT_DOCUMENT_CHARS, load_text_document
+
+    big = _docx([("lorem ipsum " * 40) for _ in range(400)])
+    store = _write_attachment(tmp_path, "huge-e5.docx", big)
+
+    loaded = load_text_document(store, "attachments/huge-e5.docx")
+
+    assert "truncated" in loaded["text"]
+    assert len(loaded["text"]) <= MAX_TEXT_DOCUMENT_CHARS + 200
+
+
+def test_docx_rejects_non_docx_corrupt_and_missing(tmp_path):
+    from app.overseer.vision import load_text_document
+
+    # Wrong type entirely.
+    png_store = _write_attachment(tmp_path, "pic-f6.png", _png(8, 8))
+    with pytest.raises(NoteError):
+        load_text_document(png_store, "attachments/pic-f6.png")
+
+    # A .docx extension over bytes that are not a real zip/docx.
+    bad_store = _write_attachment(tmp_path, "broken-g7.docx", b"not a real docx")
+    with pytest.raises(NoteError) as exc:
+        load_text_document(bad_store, "attachments/broken-g7.docx")
+    assert exc.value.status == 400
+
+    # Missing file.
+    with pytest.raises(NoteError):
+        load_text_document(bad_store, "attachments/ghost-h8.docx")
+
+    # Traversal is refused here too.
+    with pytest.raises(NoteError):
+        load_text_document(bad_store, "attachments/../../etc/passwd.docx")

@@ -116,7 +116,7 @@ def _validated_images(state, paths: list[str]) -> list[str]:
         if not rel:
             continue
         if not is_attachable(rel):
-            raise NoteError(400, f"{rel} must be an image or a PDF")
+            raise NoteError(400, f"{rel} must be an image, a PDF or a Word doc")
         # resolve_attachment rejects traversal and anything outside the folder.
         if not state.store.resolve_attachment(rel).is_file():
             raise NoteError(404, f"Attachment not found: {rel}")
