@@ -1,0 +1,14 @@
+# Starts omnianote-backup.service once a day. Install steps are in
+# omnianote-backup.service. `systemctl list-timers omnianote-backup.timer`
+# shows the last and next run.
+[Unit]
+Description=Daily EXSCALIA off-site backup
+
+[Timer]
+OnCalendar=daily
+# Run at boot if the server was down when the backup was due.
+Persistent=true
+RandomizedDelaySec=30m
+
+[Install]
+WantedBy=timers.target

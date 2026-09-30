@@ -1,0 +1,25 @@
+# Runs scripts/backup/omnianote-backup.sh once; omnianote-backup.timer starts
+# it daily. deploy.sh already syncs this directory to ~/omnianote on the VPS.
+# Install, as root on the VPS:
+#   cd /root/omnianote/scripts/backup
+#   cp omnianote-backup.env.example /etc/omnianote-backup.env
+#   chmod 600 /etc/omnianote-backup.env        # then fill it in
+#   (umask 077; openssl rand -base64 32 > /etc/omnianote-restic.pass)
+#   ./omnianote-backup.sh restic init          # once, creates the repository
+#   cp omnianote-backup.service omnianote-backup.timer /etc/systemd/system/
+#   systemctl daemon-reload
+#   systemctl enable --now omnianote-backup.timer
+#   systemctl start omnianote-backup.service   # first backup now
+#   journalctl -u omnianote-backup             # its output
+[Unit]
+Description=EXSCALIA off-site backup (restic)
+Requires=docker.service
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/root/omnianote/scripts/backup/omnianote-backup.sh
+# Stay out of the app's way on a small VPS.
+Nice=10
+IOSchedulingClass=idle

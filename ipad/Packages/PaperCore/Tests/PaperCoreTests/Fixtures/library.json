@@ -1,0 +1,23 @@
+{
+  "folders": [
+    "paper/Work"
+  ],
+  "notebooks": [
+    {
+      "cover": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "cover_url": "/api/paper/blob/paper/Work/Ideas.paper/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/render.png?r=2&v=62432147ca99",
+      "created": "2026-09-02T10:00:00.123456Z",
+      "favorite": false,
+      "folder": "paper/Work",
+      "id": "5eed5eed5eed5eed5eed5eed5eed5eed",
+      "modified": "2026-09-02T10:00:00.123456Z",
+      "page_count": 3,
+      "paperSize": "a4",
+      "path": "paper/Work/Ideas.paper",
+      "seq": 8,
+      "tags": [],
+      "template": "ruled",
+      "title": "Ideas"
+    }
+  ]
+}

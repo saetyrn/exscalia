@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+		<meta name="text-scale" content="scale" />
+		<link rel="manifest" href="%sveltekit.assets%/manifest.webmanifest" />
+		<link rel="apple-touch-icon" href="%sveltekit.assets%/apple-touch-icon.png" />
+		<meta name="theme-color" media="(prefers-color-scheme: light)" content="#f1efeb" />
+		<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1e1e22" />
+		<meta name="mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+		<script>
+			// Apply the saved theme before the app renders so navigation and reloads
+			// never flash the default palette first. Mirrors $lib/theme.ts (which
+			// can't be imported here — this runs before the bundle loads).
+			try {
+				const root = document.documentElement;
+				const theme = localStorage.getItem('omnia.theme');
+				if (
+					['system', 'light', 'dark', 'black', 'beige', 'forest', 'custom'].includes(theme ?? '')
+				) {
+					root.dataset.theme = theme;
+				}
+				const font = localStorage.getItem('omnia.font');
+				if (['serif', 'rounded', 'mono'].includes(font ?? '')) {
+					root.dataset.font = font;
+				}
+				if (localStorage.getItem('omnia.intoxicate') === '1') {
+					root.dataset.intoxicate = '1';
+				}
+				if (theme === 'custom') {
+					const saved = JSON.parse(localStorage.getItem('omnia.customTheme') ?? 'null');
+					if (saved && saved.colors) {
+						for (const [name, value] of Object.entries(saved.colors)) {
+							if (/^[a-z-]+$/.test(name) && /^#[0-9a-f]{6}$/i.test(value)) {
+								root.style.setProperty('--' + name, value);
+							}
+						}
+						// --accent-contrast is derived, never stored: accentContrast().
+						const accent = saved.colors.accent;
+						if (/^#[0-9a-f]{6}$/i.test(accent)) {
+							const lum = (hex) => {
+								const [r, g, b] = hex.match(/[0-9a-f]{2}/gi).map((h) => {
+									const c = parseInt(h, 16) / 255;
+									return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+								});
+								return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+							};
+							const ratio = (a, b) => {
+								const [hi, lo] = [lum(a), lum(b)].sort((x, y) => y - x);
+								return (hi + 0.05) / (lo + 0.05);
+							};
+							root.style.setProperty(
+								'--accent-contrast',
+								ratio(accent, '#ffffff') >= ratio(accent, '#10131a') ? '#ffffff' : '#10131a'
+							);
+						}
+						if (saved.mode === 'light' || saved.mode === 'dark') {
+							root.style.colorScheme = saved.mode;
+						}
+					}
+				}
+			} catch {
+				// Storage can be unavailable in hardened/private browser contexts.
+			}
+		</script>
+		%sveltekit.head%
+	</head>
+	<body data-sveltekit-preload-data="hover">
+		<div style="display: contents">%sveltekit.body%</div>
+	</body>
+</html>
