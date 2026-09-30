@@ -13,7 +13,7 @@ COPY frontend .
 RUN npm run build
 
 # --- runtime ----------------------------------------------------------------
-FROM python:3.12.14-slim
+FROM python:3.14.7-slim
 RUN apt-get update \
     && apt-get install -y --no-install-recommends git \
     && rm -rf /var/lib/apt/lists/* \
