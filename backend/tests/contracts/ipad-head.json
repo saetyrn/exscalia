@@ -1,0 +1,132 @@
+[
+ {
+  "method": "GET",
+  "path_template": "/api/auth/status",
+  "source": "ipad/Packages/PaperCore/Sources/PaperCore/PaperAPI.swift"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/live",
+  "source": "ipad/Packages/PaperCore/Sources/PaperCore/PaperAPI.swift"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/paper",
+  "source": "ipad/Packages/PaperCore/Sources/PaperCore/PaperAPI.swift"
+ },
+ {
+  "method": "POST",
+  "path_template": "/api/paper/assets/{param}",
+  "source": "ipad/Packages/PaperCore/Sources/PaperCore/PaperAPI.swift"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/paper/assets/{param}/{param}",
+  "source": "ipad/Packages/PaperCore/Sources/PaperCore/PaperAPI.swift"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/paper/blob/{param}/{param}/{param}",
+  "source": "ipad/Packages/PaperCore/Sources/PaperCore/PaperAPI.swift"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/paper/changes",
+  "source": "ipad/Packages/PaperCore/Sources/PaperCore/PaperAPI.swift"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/paper/folders",
+  "source": "ipad/Packages/PaperCore/Sources/PaperCore/PaperAPI.swift"
+ },
+ {
+  "method": "POST",
+  "path_template": "/api/paper/folders",
+  "source": "ipad/Packages/PaperCore/Sources/PaperCore/PaperAPI.swift"
+ },
+ {
+  "method": "DELETE",
+  "path_template": "/api/paper/folders/{param}",
+  "source": "ipad/Packages/PaperCore/Sources/PaperCore/PaperAPI.swift"
+ },
+ {
+  "method": "PATCH",
+  "path_template": "/api/paper/folders/{param}",
+  "source": "ipad/Packages/PaperCore/Sources/PaperCore/PaperAPI.swift"
+ },
+ {
+  "method": "POST",
+  "path_template": "/api/paper/folders/{param}/rename",
+  "source": "ipad/Packages/PaperCore/Sources/PaperCore/PaperAPI.swift"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/paper/history/{param}/{param}",
+  "source": "ipad/Packages/PaperCore/Sources/PaperCore/PaperAPI.swift"
+ },
+ {
+  "method": "POST",
+  "path_template": "/api/paper/history/{param}/{param}/restore",
+  "source": "ipad/Packages/PaperCore/Sources/PaperCore/PaperAPI.swift"
+ },
+ {
+  "method": "POST",
+  "path_template": "/api/paper/notebooks",
+  "source": "ipad/Packages/PaperCore/Sources/PaperCore/PaperAPI.swift"
+ },
+ {
+  "method": "DELETE",
+  "path_template": "/api/paper/notebooks/{param}",
+  "source": "ipad/Packages/PaperCore/Sources/PaperCore/PaperAPI.swift"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/paper/notebooks/{param}",
+  "source": "ipad/Packages/PaperCore/Sources/PaperCore/PaperAPI.swift"
+ },
+ {
+  "method": "PATCH",
+  "path_template": "/api/paper/notebooks/{param}",
+  "source": "ipad/Packages/PaperCore/Sources/PaperCore/PaperAPI.swift"
+ },
+ {
+  "method": "POST",
+  "path_template": "/api/paper/notebooks/{param}/pages",
+  "source": "ipad/Packages/PaperCore/Sources/PaperCore/PaperAPI.swift"
+ },
+ {
+  "method": "POST",
+  "path_template": "/api/paper/notebooks/{param}/rename",
+  "source": "ipad/Packages/PaperCore/Sources/PaperCore/PaperAPI.swift"
+ },
+ {
+  "method": "DELETE",
+  "path_template": "/api/paper/pages/{param}/{param}",
+  "source": "ipad/Packages/PaperCore/Sources/PaperCore/PaperAPI.swift"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/paper/pages/{param}/{param}",
+  "source": "ipad/Packages/PaperCore/Sources/PaperCore/PaperAPI.swift"
+ },
+ {
+  "method": "PUT",
+  "path_template": "/api/paper/pages/{param}/{param}",
+  "source": "ipad/Packages/PaperCore/Sources/PaperCore/PaperAPI.swift"
+ },
+ {
+  "method": "POST",
+  "path_template": "/api/paper/selection-action",
+  "source": "ipad/Packages/PaperCore/Sources/PaperCore/PaperAPI.swift"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/paper/trash",
+  "source": "ipad/Packages/PaperCore/Sources/PaperCore/PaperAPI.swift"
+ },
+ {
+  "method": "POST",
+  "path_template": "/api/paper/trash/{param}/restore",
+  "source": "ipad/Packages/PaperCore/Sources/PaperCore/PaperAPI.swift"
+ }
+]

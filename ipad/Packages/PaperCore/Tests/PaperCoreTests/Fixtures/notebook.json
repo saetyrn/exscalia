@@ -1,0 +1,117 @@
+{
+  "cover": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "created": "2026-09-02T10:00:00.123456Z",
+  "favorite": false,
+  "id": "5eed5eed5eed5eed5eed5eed5eed5eed",
+  "kind": "notebook",
+  "modified": "2026-09-02T10:00:00.123456Z",
+  "orientation": "portrait",
+  "pages": [
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.conflict-20260902100000",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  ],
+  "pages_detail": [
+    {
+      "bookmarked": true,
+      "conflict_of": null,
+      "created": "2026-09-02T10:00:00.123456Z",
+      "drawing_url": "/api/paper/blob/paper/Work/Ideas.paper/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/drawing.pkdrawing?r=2",
+      "durable_url": "/paper/id/5eed5eed5eed5eed5eed5eed5eed5eed/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "last_write": {
+        "base_revision": 1,
+        "client_id": "ipad-1",
+        "drawing_sha256": "16367aacb67a4a017c8da8ab95682ccb390863780f7114dda0a0e0c55644c7c4"
+      },
+      "modified": "2026-09-02T10:00:00.123456Z",
+      "notebook": "paper/Work/Ideas.paper",
+      "notebook_id": "5eed5eed5eed5eed5eed5eed5eed5eed",
+      "objects": [],
+      "path": "paper/Work/Ideas.paper/pages/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "pdf": null,
+      "render_etag": "62432147ca99",
+      "render_revision": 2,
+      "render_url": "/api/paper/blob/paper/Work/Ideas.paper/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/render.png?r=2&v=62432147ca99",
+      "revision": 2,
+      "seq": 4,
+      "size": {
+        "height": 1366.0,
+        "width": 1024.0
+      },
+      "size_points": {
+        "height": 2048.5,
+        "width": 1024.0
+      },
+      "template": "grid",
+      "text_etag": "4f167f0969b4",
+      "text_revision": 2,
+      "text_url": "/api/paper/blob/paper/Work/Ideas.paper/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/text.json?r=2&v=4f167f0969b4",
+      "title": "Sketch"
+    },
+    {
+      "bookmarked": true,
+      "conflict_of": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "created": "2026-09-02T10:00:00.123456Z",
+      "drawing_url": "/api/paper/blob/paper/Work/Ideas.paper/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.conflict-20260902100000/drawing.pkdrawing?r=1",
+      "durable_url": "/paper/id/5eed5eed5eed5eed5eed5eed5eed5eed/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.conflict-20260902100000",
+      "id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.conflict-20260902100000",
+      "modified": "2026-09-02T10:00:00.123456Z",
+      "notebook": "paper/Work/Ideas.paper",
+      "notebook_id": "5eed5eed5eed5eed5eed5eed5eed5eed",
+      "objects": [],
+      "path": "paper/Work/Ideas.paper/pages/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.conflict-20260902100000",
+      "pdf": null,
+      "render_revision": 0,
+      "render_url": null,
+      "revision": 1,
+      "seq": 7,
+      "size": {
+        "height": 1366.0,
+        "width": 1024.0
+      },
+      "template": "grid",
+      "text_revision": 0,
+      "text_url": null,
+      "title": "Sketch"
+    },
+    {
+      "bookmarked": false,
+      "conflict_of": null,
+      "created": "2026-09-02T10:00:00.123456Z",
+      "drawing_url": "/api/paper/blob/paper/Work/Ideas.paper/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb/drawing.pkdrawing?r=1",
+      "durable_url": "/paper/id/5eed5eed5eed5eed5eed5eed5eed5eed/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "last_write": {
+        "base_revision": 0,
+        "client_id": null,
+        "drawing_sha256": "d9298a10d1b0735837dc4bd85dac641b0f3cef27a47e5d53a54f2f3f5b2fcffa"
+      },
+      "modified": "2026-09-02T10:00:00.123456Z",
+      "notebook": "paper/Work/Ideas.paper",
+      "notebook_id": "5eed5eed5eed5eed5eed5eed5eed5eed",
+      "objects": [],
+      "path": "paper/Work/Ideas.paper/pages/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "pdf": null,
+      "render_revision": 0,
+      "render_url": null,
+      "revision": 1,
+      "seq": 5,
+      "size": {
+        "height": 842.0,
+        "width": 595.0
+      },
+      "template": "ruled",
+      "text_revision": 0,
+      "text_url": null,
+      "title": null
+    }
+  ],
+  "paperColor": "white",
+  "paperSize": "a4",
+  "path": "paper/Work/Ideas.paper",
+  "seq": 8,
+  "tags": [],
+  "template": "ruled",
+  "title": "Ideas"
+}

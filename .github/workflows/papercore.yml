@@ -1,0 +1,25 @@
+name: PaperCore
+
+# macOS runners bill at 10x Linux minutes on a private repo: this job is meant
+# to run on the public mirror, where Actions minutes are free.
+on:
+  push:
+    branches: [main]
+    paths: ['ipad/**', '.github/workflows/papercore.yml']
+  pull_request:
+    paths: ['ipad/**', '.github/workflows/papercore.yml']
+
+concurrency:
+  group: papercore-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  swift-test:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      # --force-resolved-versions fails on a stale Package.resolved instead of
+      # silently resolving newer dependencies.
+      - name: PaperCore tests
+        run: swift test --package-path ipad/Packages/PaperCore --force-resolved-versions

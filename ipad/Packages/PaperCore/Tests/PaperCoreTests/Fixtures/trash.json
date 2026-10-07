@@ -1,0 +1,16 @@
+{
+  "items": [
+    {
+      "deleted_at": "2026-09-02T10:00:00.123456Z",
+      "expires_at": "2026-09-02T10:00:00.123456Z",
+      "id": "7a547a547a547a547a547a547a547a54",
+      "kind": "page",
+      "note_count": 0,
+      "notebook": "paper/Work/Ideas.paper",
+      "notebook_id": "5eed5eed5eed5eed5eed5eed5eed5eed",
+      "original_path": "paper/Work/Ideas.paper/pages/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "page_id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "position": 2
+    }
+  ]
+}

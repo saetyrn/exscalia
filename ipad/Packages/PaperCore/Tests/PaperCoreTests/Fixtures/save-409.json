@@ -1,0 +1,58 @@
+{
+  "conflict": {
+    "original": {
+      "bookmarked": true,
+      "conflict_of": null,
+      "created": "2026-09-02T10:00:00.123456Z",
+      "id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "last_write": {
+        "base_revision": 1,
+        "client_id": "ipad-1",
+        "drawing_sha256": "16367aacb67a4a017c8da8ab95682ccb390863780f7114dda0a0e0c55644c7c4"
+      },
+      "modified": "2026-09-02T10:00:00.123456Z",
+      "notebook": "paper/Work/Ideas.paper",
+      "objects": [],
+      "path": "paper/Work/Ideas.paper/pages/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "pdf": null,
+      "render_etag": "62432147ca99",
+      "render_revision": 2,
+      "revision": 2,
+      "seq": 4,
+      "size": {
+        "height": 1366.0,
+        "width": 1024.0
+      },
+      "size_points": {
+        "height": 2048.5,
+        "width": 1024.0
+      },
+      "template": "grid",
+      "text_etag": "4f167f0969b4",
+      "text_revision": 2,
+      "title": "Sketch"
+    },
+    "sibling": {
+      "bookmarked": true,
+      "conflict_of": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "created": "2026-09-02T10:00:00.123456Z",
+      "id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.conflict-20260902100000",
+      "modified": "2026-09-02T10:00:00.123456Z",
+      "notebook": "paper/Work/Ideas.paper",
+      "objects": [],
+      "path": "paper/Work/Ideas.paper/pages/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.conflict-20260902100000",
+      "pdf": null,
+      "render_revision": 0,
+      "revision": 1,
+      "seq": 7,
+      "size": {
+        "height": 1366.0,
+        "width": 1024.0
+      },
+      "template": "grid",
+      "text_revision": 0,
+      "title": "Sketch"
+    }
+  },
+  "detail": "The page changed since this edit started"
+}

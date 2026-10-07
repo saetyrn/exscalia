@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Runs scripts/backup/pull-vault-bundle.sh once a day (launchd catches up
+  after sleep). It expects the checkout at ~/omnianote; edit the path below
+  if yours lives elsewhere. Keep DEST out of ~/Documents, ~/Desktop and
+  iCloud folders, which launchd jobs cannot write to without Full Disk Access.
+
+  Install:
+    1. Write ~/.config/exscalia/backup.env (SERVER=..., DEST=...).
+    2. Run the script once by hand so ssh records the server's host key.
+    3. cp scripts/backup/art.exscalia.vault-pull.plist ~/Library/LaunchAgents/
+       launchctl bootstrap gui/$UID ~/Library/LaunchAgents/art.exscalia.vault-pull.plist
+  Run now:   launchctl kickstart gui/$UID/art.exscalia.vault-pull
+  Remove:    launchctl bootout gui/$UID/art.exscalia.vault-pull
+  Log:       ~/Library/Logs/exscalia-vault-pull.log
+-->
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>art.exscalia.vault-pull</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>/bin/sh</string>
+		<string>-c</string>
+		<string>exec "$HOME/omnianote/scripts/backup/pull-vault-bundle.sh" &gt;&gt; "$HOME/Library/Logs/exscalia-vault-pull.log" 2&gt;&amp;1</string>
+	</array>
+	<key>StartCalendarInterval</key>
+	<dict>
+		<key>Hour</key>
+		<integer>12</integer>
+		<key>Minute</key>
+		<integer>0</integer>
+	</dict>
+	<key>ProcessType</key>
+	<string>Background</string>
+</dict>
+</plist>

@@ -1,0 +1,20 @@
+[
+ {"name": "Accounting", "slug": "Accounting"},
+ {"name": "Notes.paper", "slug": "Notes.paper_"},
+ {"name": "Notes.PAPER", "slug": "Notes.PAPER_"},
+ {"name": "notes.paper.", "slug": "notes.paper_"},
+ {"name": ".paper", "slug": ".paper_"},
+ {"name": "my.paperwork", "slug": "my.paperwork"},
+ {"name": "folder.json", "slug": "folder.json_"},
+ {"name": "Folder.JSON", "slug": "Folder.JSON_"},
+ {"name": "folder.json.bak", "slug": "folder.json.bak"},
+ {"name": "CON", "slug": "_CON"},
+ {"name": "\ud83d\udcd2 Ledger", "slug": "\ud83d\udcd2 Ledger"},
+ {"name": "Work/Accounting", "slug": "Work Accounting"},
+ {"name": "Q3: Plans?", "slug": "Q3 Plans"},
+ {"name": "  Spaced   out  ", "slug": "Spaced out"},
+ {"name": "", "slug": "Untitled"},
+ {"name": "Re\u0301sume\u0301", "slug": "R\u00e9sum\u00e9"},
+ {"name": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.paper", "slug": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.paper_"},
+ {"name": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.paper", "slug": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.pap"}
+]

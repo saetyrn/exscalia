@@ -1,0 +1,65 @@
+{
+  "cover": "cccccccccccccccccccccccccccccccc",
+  "created": "2026-09-02T10:00:00.123456Z",
+  "favorite": false,
+  "id": "b0a4b0a4b0a4b0a4b0a4b0a4b0a4b0a4",
+  "kind": "whiteboard",
+  "modified": "2026-09-02T10:00:00.123456Z",
+  "orientation": "portrait",
+  "pages": [
+    "cccccccccccccccccccccccccccccccc"
+  ],
+  "pages_detail": [
+    {
+      "board_extent": {
+        "height": 16384.0,
+        "width": 16384.0
+      },
+      "bookmarked": false,
+      "conflict_of": null,
+      "created": "2026-09-02T10:00:00.123456Z",
+      "drawing_url": "/api/paper/blob/paper/Plans.paper/cccccccccccccccccccccccccccccccc/drawing.pkdrawing?r=1",
+      "durable_url": "/paper/id/b0a4b0a4b0a4b0a4b0a4b0a4b0a4b0a4/cccccccccccccccccccccccccccccccc",
+      "id": "cccccccccccccccccccccccccccccccc",
+      "last_write": {
+        "base_revision": 0,
+        "client_id": "ipad-1",
+        "drawing_sha256": "859169b38185780daa5497983ff20d2994390058d8a71f2847ac7846f970971e"
+      },
+      "modified": "2026-09-02T10:00:00.123456Z",
+      "notebook": "paper/Plans.paper",
+      "notebook_id": "b0a4b0a4b0a4b0a4b0a4b0a4b0a4b0a4",
+      "objects": [],
+      "paper_color": "cream",
+      "path": "paper/Plans.paper/pages/cccccccccccccccccccccccccccccccc",
+      "pdf": null,
+      "render_etag": "62432147ca99",
+      "render_rect": {
+        "height": 1024.0,
+        "width": 1366.0,
+        "x": 7509.0,
+        "y": 7680.0
+      },
+      "render_revision": 1,
+      "render_url": "/api/paper/blob/paper/Plans.paper/cccccccccccccccccccccccccccccccc/render.png?r=1&v=62432147ca99",
+      "revision": 1,
+      "seq": 15,
+      "size": {
+        "height": 1024.0,
+        "width": 1366.0
+      },
+      "size_name": "board",
+      "template": "grid",
+      "text_revision": 0,
+      "text_url": null,
+      "title": "Board 1"
+    }
+  ],
+  "paperColor": "cream",
+  "paperSize": "board",
+  "path": "paper/Plans.paper",
+  "seq": 16,
+  "tags": [],
+  "template": "grid",
+  "title": "Plans"
+}

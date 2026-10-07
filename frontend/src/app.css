@@ -1,0 +1,635 @@
+:root {
+	color-scheme: light;
+	--bg: #faf9f7;
+	--bg-panel: #f1efeb;
+	--bg-hover: #e9e6e0;
+	--bg-active: #e2ddf5;
+	--border: #dedad2;
+	--text: #24292f;
+	--text-muted: #636b75;
+	--accent: #6c5ce7;
+	/* Text and marks on an accent fill: white or near-black per theme,
+	   whichever clears 4.5:1 on that theme's accent (custom themes derive it
+	   the same way in theme.ts). Never a hard-coded #fff on --accent. */
+	--accent-contrast: #ffffff;
+	--accent-soft: #efecfd;
+	--danger: #c0392b;
+	--added: #1a7f37;
+	--removed: #cf222e;
+	/* Rating stars are a fixed gold in every theme — defined here and never
+	   overridden below, so the star system reads the same everywhere. */
+	--star: #f5c518;
+	--star-dim: color-mix(in srgb, var(--star) 32%, transparent);
+	--radius: 8px;
+	--sidebar-w: 270px;
+	/* Height of the desktop app's top row. The sidebar header and the tab strip
+	   sit side by side there and act as the window's title bar, so both take
+	   their height from here or the seam between them shows.
+	   macOS parks its traffic lights for a 28pt title bar, which leaves them
+	   riding high in a row this tall, so `trafficLightPosition` in
+	   tauri.conf.json pushes them back down. That y is calibrated as
+	   (button centre from the window top) + 2.25, and the centre wants to be
+	   half of this value — change one and the other has to follow. */
+	--titlebar-h: 42px;
+	/* Height of the mobile tab bar, zero wherever it does not render. It is an
+	   in-flow child of <main>, so the route view already shrinks by itself;
+	   this is for everything that bottom-anchors to the *viewport* — toasts,
+	   the pending tray, dvh-based editor heights — which would otherwise sit
+	   underneath it. Set to its real value in the mobile block below. */
+	--tabbar-h: 0px;
+	/* Height of the media item page's mobile action bar, which parks on top of
+	   the tab bar. Zero everywhere else; MediaActionBar measures itself into
+	   this while it is mounted and visible, so a toast anchored to the bottom
+	   clears both bars instead of covering the one you just tapped. */
+	--mediabar-h: 0px;
+	/* Mobile design tokens. One set of proportions for every ≤760px surface —
+	   before these, gutters/rows/labels were re-invented per component (five
+	   gutters, five section-label specs, 25 font sizes). Components reference
+	   these inside their own mobile blocks; the values are only *meaningful*
+	   on mobile but live here so any block can reach them.
+	   Section-label spec (not tokenizable as one var): var(--m-label) / 600 /
+	   letter-spacing 0.5px / uppercase / --text-muted. */
+	--m-gutter: 16px; /* standard page side padding */
+	--m-radius: 12px; /* grouped list cards, tiles, sheets */
+	--m-row-h: 52px; /* standard list row height */
+	--m-row-text: 16px; /* primary row text */
+	--m-meta: 13px; /* secondary/meta text */
+	--m-label: 12px; /* section labels (spec above) */
+	--m-title: 22px; /* in-page h1 (700, letter-spacing -0.2px) */
+	--m-icon: 18px; /* row leading icon */
+	--m-icon-bar: 22px; /* top/tab bar icons */
+	/* Stacking lanes (HANDOFF §7 "Sheet z lanes"), by name so a new overlay
+	   picks a lane instead of a number. The mobile top bar (35), tab bar (45),
+	   MobileEditBar (55) and the layout's own 100/200 stay literal. */
+	--z-scrim: 50; /* drawer scrim, PendingBox */
+	--z-drawer: 60;
+	--z-sheet: 70; /* BottomSheet */
+	--z-palette: 900;
+	--z-dialog: 1000; /* every modal dialog; the palette's prompts open above it */
+	--z-toast: 1200;
+	--z-texture: 1300; /* the scanline and grain overlay: over everything, click-through */
+	--motion-fast: 110ms;
+	--motion-base: 170ms;
+	--motion-slow: 240ms;
+	--ease-out: cubic-bezier(0.2, 0.75, 0.25, 1);
+	--ease-snap: cubic-bezier(0.2, 0.9, 0.25, 1.08);
+	--focus-ring: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);
+	/* Derived from --text/--bg so every theme — custom ones included — gets a
+	   matching scrollbar with no extra stored colors. */
+	--scroll-thumb: color-mix(in srgb, var(--text) 22%, transparent);
+	--scroll-thumb-hover: color-mix(in srgb, var(--text) 38%, transparent);
+	--lift-shadow: 0 5px 14px color-mix(in srgb, var(--text) 9%, transparent);
+	--font-ui:
+		-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+	--font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+}
+
+/* A live touch drag owns the screen: no text selection, no iOS callout. */
+body.touch-dragging,
+body.touch-dragging * {
+	user-select: none;
+	-webkit-user-select: none;
+	-webkit-touch-callout: none;
+}
+
+/* System theme: follow the OS. Only applies when no explicit theme is set. */
+@media (prefers-color-scheme: dark) {
+	:root:not([data-theme]),
+	:root[data-theme='system'] {
+		color-scheme: dark;
+		--bg: #1e1e22;
+		--bg-panel: #26262c;
+		--bg-hover: #303038;
+		--bg-active: #3a3654;
+		--border: #3a3a42;
+		--text: #e6e6ea;
+		--text-muted: #9a9aa5;
+		--accent: #8d7cf6;
+		--accent-contrast: #10131a;
+		--accent-soft: #322e4a;
+		--danger: #e5534b;
+		--added: #57ab5a;
+		--removed: #e5534b;
+	}
+}
+
+/* Font choice (set via data-font on <html>, chosen in Settings). The default
+   is the system sans stack in :root; these override --font-ui app-wide,
+   editor included. System stacks only — nothing to download. */
+:root[data-font='serif'] {
+	--font-ui: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif;
+}
+:root[data-font='rounded'] {
+	--font-ui:
+		ui-rounded, 'SF Pro Rounded', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+		sans-serif;
+}
+:root[data-font='mono'] {
+	--font-ui: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+}
+
+/* Explicit themes (set via data-theme on <html>, chosen in Settings). */
+:root[data-theme='light'] {
+	color-scheme: light;
+	--bg: #faf9f7;
+	--bg-panel: #f1efeb;
+	--bg-hover: #e9e6e0;
+	--bg-active: #e2ddf5;
+	--border: #dedad2;
+	--text: #24292f;
+	--text-muted: #636b75;
+	--accent: #6c5ce7;
+	--accent-contrast: #ffffff;
+	--accent-soft: #efecfd;
+	--danger: #c0392b;
+	--added: #1a7f37;
+	--removed: #cf222e;
+}
+
+:root[data-theme='dark'] {
+	color-scheme: dark;
+	--bg: #1e1e22;
+	--bg-panel: #26262c;
+	--bg-hover: #303038;
+	--bg-active: #3a3654;
+	--border: #3a3a42;
+	--text: #e6e6ea;
+	--text-muted: #9a9aa5;
+	--accent: #8d7cf6;
+	--accent-contrast: #10131a;
+	--accent-soft: #322e4a;
+	--danger: #e5534b;
+	--added: #57ab5a;
+	--removed: #e5534b;
+}
+
+:root[data-theme='black'] {
+	color-scheme: dark;
+	--bg: #000000;
+	/* Panel/border sit far enough off pure black to read as surfaces on an
+	   OLED phone — at the old #0c0c0e/#26262b, cards were invisible and lists
+	   floated in a void. The background itself stays true black. */
+	--bg-panel: #121214;
+	--bg-hover: #1f1f23;
+	--bg-active: #241f3d;
+	--border: #2c2c32;
+	--text: #ececf0;
+	--text-muted: #86868f;
+	--accent: #9d8cff;
+	--accent-contrast: #10131a;
+	--accent-soft: #1c1633;
+	--danger: #ff6b60;
+	--added: #4ade80;
+	--removed: #ff6b60;
+}
+
+:root[data-theme='beige'] {
+	color-scheme: light;
+	--bg: #f2e9d8;
+	--bg-panel: #eaddc4;
+	--bg-hover: #e0d0b2;
+	--bg-active: #ddc9a2;
+	--border: #d3c1a0;
+	--text: #3b2f21;
+	--text-muted: #6f5e47;
+	--accent: #a05e2c;
+	--accent-contrast: #ffffff;
+	--accent-soft: #e9d6b4;
+	--danger: #a33d2b;
+	--added: #4a7c3a;
+	--removed: #a33d2b;
+}
+
+:root[data-theme='forest'] {
+	color-scheme: dark;
+	--bg: #0f1711;
+	--bg-panel: #15211a;
+	--bg-hover: #1c2b21;
+	--bg-active: #26402e;
+	--border: #263529;
+	--text: #dfe8dc;
+	--text-muted: #8ba08c;
+	--accent: #6fbf73;
+	--accent-contrast: #10131a;
+	--accent-soft: #1b2f21;
+	--danger: #e07a5f;
+	--added: #7bc47f;
+	--removed: #e07a5f;
+}
+
+/* Texture: an optional analog-broadcast overlay over the whole window, the
+   one Recipes wears on its pane: scanlines (1px every 3px) and grain that
+   jumps by transform, which the compositor animates without repainting.
+   Click-through and above everything, dialogs and toasts included.
+
+   Dark surfaces only. The values are tuned for black; on a light page the
+   scanlines band and dim it while the grain disappears. light-dark() follows
+   the root's color-scheme, which every theme sets (a custom theme through its
+   mode, Recipes through its own look); the media look is black whatever the
+   theme and sets no scheme, so it is named. An engine without light-dark()
+   gets no overlay. Paper is exempt: the layout does not render it there. */
+.app-texture {
+	display: none;
+}
+@supports (color: light-dark(black, white)) {
+	:root[data-texture='1'] .app-texture {
+		--tx-scan: light-dark(transparent, rgba(0, 0, 8, 0.16));
+		--tx-grain: light-dark(transparent, rgb(128, 128, 140));
+		display: block;
+		position: fixed;
+		inset: 0;
+		z-index: var(--z-texture);
+		overflow: hidden;
+		pointer-events: none;
+	}
+	:root[data-texture='1'][data-media-look] .app-texture {
+		--tx-scan: rgba(0, 0, 8, 0.16);
+		--tx-grain: rgb(128, 128, 140);
+	}
+	.app-texture-scan {
+		position: absolute;
+		inset: 0;
+		background-image: repeating-linear-gradient(
+			to bottom,
+			var(--tx-scan) 0px,
+			var(--tx-scan) 1px,
+			transparent 1px,
+			transparent 3px
+		);
+		filter: blur(0.4px);
+	}
+	/* The grain is one colour with a noisy alpha, so the noise tile is the
+	   mask and the colour can follow the scheme. */
+	.app-texture-grain {
+		position: absolute;
+		inset: -140px;
+		opacity: 0.03;
+		background-color: var(--tx-grain);
+		-webkit-mask-image: var(--tx-noise);
+		mask-image: var(--tx-noise);
+		-webkit-mask-size: 140px 140px;
+		mask-size: 140px 140px;
+		animation: app-grain 0.9s steps(1) infinite;
+		--tx-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0 0.55 0 0 0 0.9 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+	}
+	/* The two built-in light themes need no layer at all, outside the
+	   sections that are black anyway. */
+	:root[data-texture='1']:is([data-theme='light'], [data-theme='beige']):not(
+			[data-media-look],
+			[data-recipes-look]
+		)
+		.app-texture {
+		display: none;
+	}
+	/* The window's overlay covers the Recipes pane too: one layer, not two. */
+	:root[data-texture='1'] .rc-tv {
+		display: none;
+	}
+}
+@keyframes app-grain {
+	0% { transform: translate3d(0, 0, 0); }
+	12% { transform: translate3d(-46px, 31px, 0); }
+	25% { transform: translate3d(33px, -57px, 0); }
+	37% { transform: translate3d(-70px, -13px, 0); }
+	50% { transform: translate3d(57px, 44px, 0); }
+	62% { transform: translate3d(-21px, 68px, 0); }
+	75% { transform: translate3d(12px, -39px, 0); }
+	87% { transform: translate3d(-58px, -66px, 0); }
+	100% { transform: translate3d(0, 0, 0); }
+}
+/* The grain holds still under reduced motion: the block further down stops
+   every animation in the app. */
+@media print {
+	.app-texture {
+		display: none !important;
+	}
+}
+
+/* Intoxicate: an optional uninterrupted-canvas mode. Every structural
+   surface shares one background while borders and dividers disappear.
+   Hover and selection colors remain distinct so controls still feel alive. */
+:root[data-intoxicate='1'] {
+	--border: transparent !important;
+	--bg-panel: var(--bg) !important;
+}
+
+:root[data-intoxicate='1'] *,
+:root[data-intoxicate='1'] *::before,
+:root[data-intoxicate='1'] *::after {
+	border-color: transparent !important;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+/* Media routes: the document root joins the media-shell black so the
+   status-bar zone and the band under the fixed tab bar can't show the
+   app theme. Toggled by the root layout. */
+/* Media routes wear the media look across the WHOLE app, not just the media
+   pane: the sidebar/drawer, top bar, tab bar and overlays all sit outside the
+   media page's own wrapper, so the palette has to live at the document root to
+   reach them. The secondary colour is white here by request. The media pages'
+   own internal hierarchy is preserved because .media-shell (and the item
+   page) re-declare their muted grey for their own subtree. --accent still
+   follows the app theme. */
+:root[data-media-look] {
+	--bg: #000000;
+	--bg-panel: #17171a;
+	--bg-hover: color-mix(in srgb, #ffffff 7%, transparent);
+	--bg-active: color-mix(in srgb, #ffffff 12%, transparent);
+	--border: #2a2a2e;
+	--text: #ffffff;
+	--text-muted: #ffffff;
+	--accent-soft: color-mix(in srgb, var(--accent) 16%, transparent);
+}
+:root[data-media-look],
+:root[data-media-look] body {
+	background: #000000;
+	color: var(--text);
+}
+
+html,
+body {
+	margin: 0;
+	height: 100%;
+}
+
+html {
+	scroll-behavior: smooth;
+	/* Explicit root color: iOS 26's Liquid Glass chrome falls back to a solid
+	   white/black bar when the root is transparent. */
+	background-color: var(--bg);
+}
+
+body {
+	font-family: var(--font-ui);
+	background: var(--bg);
+	color: var(--text);
+	font-size: 15px;
+	line-height: 1.5;
+	transition:
+		background-color var(--motion-slow) var(--ease-out),
+		color var(--motion-base) var(--ease-out);
+}
+
+button {
+	font-family: inherit;
+	font-size: 13px;
+	color: var(--text);
+	background: transparent;
+	border: 1px solid transparent;
+	border-radius: var(--radius);
+	padding: 4px 10px;
+	cursor: pointer;
+	/* No transform in this list on purpose: hover/press feedback is color and
+	   background only — never movement. See the design rule in HANDOFF §2. */
+	transition:
+		background-color var(--motion-base) var(--ease-out),
+		border-color var(--motion-base) var(--ease-out),
+		color var(--motion-base) var(--ease-out),
+		box-shadow var(--motion-base) var(--ease-out),
+		filter var(--motion-base) var(--ease-out),
+		opacity var(--motion-base) var(--ease-out);
+}
+
+button:hover {
+	background: var(--bg-hover);
+}
+
+button:disabled {
+	cursor: not-allowed;
+	opacity: 0.5;
+}
+
+button.primary {
+	background: var(--accent);
+	color: var(--accent-contrast);
+	border-color: var(--accent);
+}
+
+button.primary:hover {
+	filter: brightness(1.08);
+	box-shadow: var(--lift-shadow);
+}
+
+button.danger:hover {
+	color: var(--danger);
+}
+
+/* `input:not([type])` covers bare inputs, which default to text — without it
+   they fall through to the browser's own chrome. */
+input:not([type]),
+input[type='text'],
+input[type='password'],
+input[type='search'],
+input[type='date'],
+input[type='number'],
+input[type='email'],
+textarea,
+select {
+	font-family: inherit;
+	font-size: 14px;
+	color: var(--text);
+	background: var(--bg);
+	border: 1px solid var(--border);
+	border-radius: var(--radius);
+	padding: 6px 10px;
+	outline: none;
+	transition:
+		background-color var(--motion-base) var(--ease-out),
+		border-color var(--motion-base) var(--ease-out),
+		box-shadow var(--motion-base) var(--ease-out),
+		color var(--motion-base) var(--ease-out);
+}
+
+/* The glyph itself follows each theme's color-scheme; just soften it so it
+   reads as secondary next to the value. */
+input[type='date']::-webkit-calendar-picker-indicator {
+	cursor: pointer;
+	opacity: 0.5;
+	transition: opacity var(--motion-base) var(--ease-out);
+}
+input[type='date']::-webkit-calendar-picker-indicator:hover {
+	opacity: 1;
+}
+
+select {
+	cursor: pointer;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+	border-color: var(--accent);
+	box-shadow: var(--focus-ring);
+}
+
+/* Checkboxes are drawn from theme variables rather than left to the browser,
+   so they match every palette (including custom ones). */
+input[type='checkbox'] {
+	appearance: none;
+	-webkit-appearance: none;
+	position: relative;
+	width: 15px;
+	height: 15px;
+	flex-shrink: 0;
+	margin: 0 1px;
+	border: 1px solid var(--border);
+	border-radius: 4px;
+	background: var(--bg);
+	cursor: pointer;
+	transition:
+		background-color var(--motion-fast) var(--ease-out),
+		border-color var(--motion-fast) var(--ease-out),
+		transform var(--motion-fast) var(--ease-snap);
+}
+
+input[type='checkbox']:not(:disabled):hover {
+	border-color: var(--accent);
+}
+
+input[type='checkbox']:checked {
+	border-color: var(--accent);
+	background: var(--accent);
+}
+
+/* The tick: two borders of an empty box, rotated into a check. */
+input[type='checkbox']:checked::after {
+	content: '';
+	position: absolute;
+	left: 4px;
+	top: 1px;
+	width: 4px;
+	height: 8px;
+	border: solid var(--bg);
+	border-width: 0 2px 2px 0;
+	transform: rotate(42deg);
+}
+
+input[type='checkbox']:disabled {
+	opacity: 0.45;
+	cursor: not-allowed;
+}
+
+/* Scrollbars: themed in both the standard and WebKit syntaxes. */
+* {
+	scrollbar-color: var(--scroll-thumb) transparent;
+	scrollbar-width: thin;
+}
+
+::-webkit-scrollbar {
+	width: 10px;
+	height: 10px;
+}
+
+::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+	border: 2px solid transparent;
+	border-radius: 10px;
+	background: var(--scroll-thumb);
+	background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+	background: var(--scroll-thumb-hover);
+	background-clip: content-box;
+}
+
+::-webkit-scrollbar-corner {
+	background: transparent;
+}
+
+a,
+summary {
+	transition:
+		color var(--motion-base) var(--ease-out),
+		background-color var(--motion-base) var(--ease-out),
+		border-color var(--motion-base) var(--ease-out),
+		opacity var(--motion-base) var(--ease-out);
+}
+
+button:focus-visible,
+a:focus-visible,
+summary:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+	outline: 2px solid var(--accent);
+	outline-offset: 2px;
+}
+
+::selection {
+	background: var(--bg-active);
+}
+
+/* Covers CSS animations and transitions only. Svelte's transition directives
+   and animate:flip run through element.animate(), out of reach of these
+   properties; they take the same setting from $lib/motion. */
+@media (prefers-reduced-motion: reduce) {
+	html {
+		scroll-behavior: auto;
+	}
+
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+}
+
+@media (max-width: 760px) {
+	:root {
+		--tabbar-h: calc(48px + max(8px, min(env(safe-area-inset-bottom, 0px), 20px)));
+	}
+
+	html,
+	body {
+		height: 100dvh;
+		overflow: hidden;
+		overscroll-behavior: none;
+	}
+
+	body {
+		font-size: 15px;
+		-webkit-text-size-adjust: 100%;
+	}
+
+	button,
+	a,
+	input,
+	select,
+	textarea,
+	summary {
+		touch-action: manipulation;
+		-webkit-tap-highlight-color: color-mix(in srgb, var(--accent) 18%, transparent);
+	}
+
+	/* Icon buttons with a fixed small box opt out with `min-height: 0` and
+	   grow a hit area instead (an inset-negative ::after), so a 17px circle
+	   is not stretched into a 17x44 oval. */
+	button {
+		min-height: 44px;
+	}
+
+	/* Every text field, typed or bare. Under 16px iOS zooms the page on focus
+	   and never zooms back; an element selector loses to any scoped class
+	   rule, which is how a dozen fields slipped back under it — hence the
+	   !important on the font floor. min-height stays overridable (`:where`
+	   keeps it at one class) for inline chips. The opt-outs are the large
+	   title inputs, already above 16px and sized to the heading they replace. */
+	:where(
+		input:not([type='checkbox'], [type='radio'], [type='range'], [type='file'], [type='color'], [type='submit'], [type='button']),
+		textarea,
+		select
+	):not(.heading-input, .name-edit, .alias-edit, .rc-title-input) {
+		min-height: 44px;
+		font-size: 16px !important;
+	}
+}

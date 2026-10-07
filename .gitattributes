@@ -1,0 +1,9 @@
+# Left out of `git archive`, which is what scripts/refresh-mirror.sh exports
+# to the public mirror. HANDOFF.md, AGENTS.md and the audits carry private
+# operational detail; the rest is editor and agent scratch.
+HANDOFF.md export-ignore
+AGENTS.md export-ignore
+CLAUDE.md export-ignore
+AUDIT-*.md export-ignore
+.Rhistory export-ignore
+.claude export-ignore

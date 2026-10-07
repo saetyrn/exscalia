@@ -1,0 +1,624 @@
+/* The recipes look, after the recipe app's styles.css: a plain black page,
+   Playfair Display stretched tall for titles, small tracked capitals for
+   labels, bare line icons, hairlines instead of boxes, and the faint scanline
+   and grain overlay. Always dark, whatever the app theme.
+
+   Imported by routes/recipes/+layout.svelte. A stylesheet stays in the
+   document once a route has loaded it, so every rule here is scoped: to the
+   pane (.rc-root and below) or to :root[data-recipes-look], which the root
+   layout sets only while a /recipes route is open. Screen-specific styles
+   (the carousel, the recipe page, the forms) belong to the screens. */
+
+/* ---------- Playfair Display, self-hosted (OFL, static/fonts/OFL.txt) ---------- */
+
+/* Google's files for weights 400 and 600 are one variable font with a 400-600
+   weight axis; italic is a single 400 instance. Latin and Latin Extended. */
+@font-face {
+	font-family: 'Playfair Display';
+	font-style: normal;
+	font-weight: 400 600;
+	font-display: swap;
+	src: url('/fonts/playfair-display-latin-ext.woff2') format('woff2');
+	unicode-range:
+		U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
+		U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113,
+		U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+	font-family: 'Playfair Display';
+	font-style: normal;
+	font-weight: 400 600;
+	font-display: swap;
+	src: url('/fonts/playfair-display-latin.woff2') format('woff2');
+	unicode-range:
+		U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308,
+		U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+	font-family: 'Playfair Display';
+	font-style: italic;
+	font-weight: 400;
+	font-display: swap;
+	src: url('/fonts/playfair-display-italic-latin-ext.woff2') format('woff2');
+	unicode-range:
+		U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
+		U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113,
+		U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+	font-family: 'Playfair Display';
+	font-style: italic;
+	font-weight: 400;
+	font-display: swap;
+	src: url('/fonts/playfair-display-italic-latin.woff2') format('woff2');
+	unicode-range:
+		U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308,
+		U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* ---------- the app around the pane ---------- */
+
+/* As on media routes, the whole app wears the black while a recipes page is
+   open: the sidebar, top bar, tab bar and dialogs sit outside the pane, so the
+   palette lives on the document root. --accent still follows the app theme.
+   `html:root` outranks app.css's theme blocks (:root[data-theme=…]) whichever
+   stylesheet the browser happens to load last. */
+html:root[data-recipes-look] {
+	color-scheme: dark;
+	--bg: #000000;
+	--bg-panel: #17171a;
+	--bg-hover: color-mix(in srgb, #ffffff 7%, transparent);
+	--bg-active: color-mix(in srgb, #ffffff 12%, transparent);
+	--border: #2a2a2e;
+	--text: #e4e7f5;
+	--text-muted: #a3a8c4;
+	--accent-soft: color-mix(in srgb, var(--accent) 16%, transparent);
+	/* The app's dialogs, toasts and OMNIA keep their own look over the black,
+	   in the dark theme's signal colours: a light theme's red is too dim on
+	   a black panel. */
+	--danger: #e5534b;
+	--added: #57ab5a;
+	--removed: #e5534b;
+}
+html:root[data-recipes-look],
+html:root[data-recipes-look] body {
+	background: #000000;
+	color: var(--text);
+}
+
+/* ---------- the pane ---------- */
+
+/* Tokens for the screens. Declared on the pane itself, so a custom app theme
+   (which writes its colours inline on <html>) cannot reach them. */
+.rc-root {
+	--rc-bg: #000000;
+	--rc-ink: #e4e7f5;
+	--rc-muted: #a3a8c4;
+	--rc-hair: rgba(228, 231, 245, 0.1);
+	--rc-hair-strong: rgba(228, 231, 245, 0.18);
+	/* The rules between rows: ingredients, steps and form sections, and the
+	   fainter one between a form's own rows. */
+	--rc-rule: rgba(255, 255, 255, 0.07);
+	--rc-rule-faint: rgba(255, 255, 255, 0.06);
+	--rc-danger: #e38a86;
+	--rc-focus: #a995ee;
+	--rc-field-bg: rgba(255, 255, 255, 0.045);
+	--rc-field-border: rgba(255, 255, 255, 0.09);
+	--rc-field-border-hover: rgba(255, 255, 255, 0.16);
+	/* The chromatic fringe and glow on display type, from the site. */
+	--rc-fringe:
+		0.7px 0 rgba(255, 60, 80, 0.18), -0.7px 0 rgba(60, 90, 255, 0.2),
+		0 0 3px rgba(225, 232, 255, 0.45);
+	--rc-serif: 'Playfair Display', 'Times New Roman', serif;
+	--rc-sans: var(--font-ui);
+	--rc-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+	/* Type scale: display titles are StretchedTitle's; these are the rest. */
+	--rc-text: 1rem; /* body, ingredient rows */
+	--rc-small: 0.85rem; /* secondary lines */
+	--rc-label: 0.68rem; /* tracked capitals */
+	--rc-label-track: 0.12em;
+	--rc-gutter: 18px; /* page side padding */
+	--rc-top: 72px; /* page top padding: clears the corner row */
+	--rc-ease: cubic-bezier(0.22, 1, 0.36, 1);
+	position: relative;
+	flex: 1;
+	min-height: 0;
+	display: flex;
+	overflow: hidden;
+	background: var(--rc-bg);
+	color: var(--rc-ink);
+	color-scheme: dark;
+	font: 400 16px/1.5 var(--rc-sans);
+	-webkit-font-smoothing: antialiased;
+	text-rendering: optimizeLegibility;
+	font-kerning: normal;
+}
+
+/* The page area: the element that slides. The corner row sits in its slot,
+   above the scroller, so it stays put while the page scrolls. */
+.rc-shell {
+	position: relative;
+	flex: 1;
+	min-width: 0;
+	min-height: 0;
+	display: flex;
+	flex-direction: column;
+	background: var(--rc-bg);
+}
+.rc-scroll {
+	flex: 1;
+	min-height: 0;
+	display: flex;
+	flex-direction: column;
+	overflow-x: hidden;
+	overflow-y: auto;
+	scrollbar-gutter: stable;
+	scrollbar-color: rgba(255, 255, 255, 0.16) transparent;
+}
+.rc-corner-slot {
+	position: absolute;
+	z-index: 30;
+	top: 16px;
+	left: 14px;
+}
+/* OMNIA's popover hangs under the corner row on wide screens, sized to the
+   pane (a morning banner above it can leave less than its usual 520px). The
+   anchor spans the free height and lets clicks through; MediaChatPopover's
+   own wrapper and dropdown are stretched into it. */
+.rc-omnia {
+	position: absolute;
+	z-index: 45;
+	top: 60px;
+	left: 14px;
+}
+@media (min-width: 761px) {
+	.rc-omnia {
+		bottom: 14px;
+		width: min(440px, calc(100% - 28px));
+		pointer-events: none;
+	}
+	.rc-root .rc-omnia .omnia-pop-wrap {
+		position: absolute;
+		inset: 0;
+	}
+	.rc-root .rc-omnia .omnia-pop {
+		top: 0;
+		width: 100%;
+		height: min(520px, 100%);
+		pointer-events: auto;
+	}
+}
+
+.rc-root ::selection {
+	background: rgba(169, 149, 238, 0.4);
+	color: #ffffff;
+}
+.rc-shell :focus-visible {
+	outline: 1.5px solid var(--rc-focus);
+	outline-offset: 3px;
+	border-radius: 6px;
+}
+
+/* ---------- page frame and type ---------- */
+
+/* The usual page: one centred column under the corner row. A form page ends
+   in its own action row or sticky save bar, so it has no bottom padding. */
+.rc-page {
+	position: relative;
+	width: 100%;
+	max-width: 720px;
+	margin: 0 auto;
+	padding: var(--rc-top) var(--rc-gutter) 56px;
+}
+.rc-page.rc-form {
+	padding-bottom: 0;
+}
+.rc-shell :is(h1, h2, h3, p) {
+	margin: 0;
+}
+/* Small tracked capitals: labels, captions, section heads. */
+.rc-caption {
+	font: 600 var(--rc-label) / 1.5 var(--rc-sans);
+	letter-spacing: var(--rc-label-track);
+	text-transform: uppercase;
+	color: var(--rc-muted);
+}
+h2.rc-caption {
+	margin: 1.9rem 0 0.6rem;
+}
+.rc-muted {
+	color: var(--rc-muted);
+}
+.rc-small {
+	font-size: var(--rc-small);
+}
+.rc-error {
+	margin: 10px 0;
+	color: var(--rc-danger);
+}
+/* An empty or not-found state: one serif line. */
+.rc-empty {
+	padding: 4rem 0;
+	font-family: var(--rc-serif);
+	font-size: 1.3rem;
+	letter-spacing: -0.02em;
+	text-align: center;
+}
+/* A page that could not load stands its error where the page would be. */
+.rc-state {
+	padding: 4rem 0;
+	text-align: center;
+}
+
+/* ---------- controls ---------- */
+
+/* A text button in tracked capitals (Redraw, Add step, Delete recipe). */
+.rc-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	min-height: 0;
+	padding: 0;
+	border: 0;
+	border-radius: 0;
+	background: none;
+	color: var(--rc-muted);
+	font: 600 0.66rem / 1.4 var(--rc-sans);
+	letter-spacing: var(--rc-label-track);
+	text-transform: uppercase;
+	text-decoration: none;
+	cursor: pointer;
+	transition: color 0.15s ease;
+}
+.rc-link:hover:not(:disabled) {
+	background: none;
+	color: var(--rc-ink);
+}
+.rc-link:disabled {
+	opacity: 0.35;
+	cursor: default;
+}
+.rc-link.danger {
+	color: var(--rc-danger);
+}
+.rc-link svg {
+	width: 16px;
+	height: 16px;
+	stroke-width: 1.6;
+}
+
+/* Pill buttons; the primary one is ink on black. */
+.rc-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	min-height: 40px;
+	padding: 0 20px;
+	border: 1px solid var(--rc-hair-strong);
+	border-radius: 999px;
+	background: transparent;
+	color: var(--rc-ink);
+	font: 600 0.86rem / 1 var(--rc-sans);
+	letter-spacing: 0.01em;
+	text-decoration: none;
+	cursor: pointer;
+	transition:
+		background-color 0.2s ease,
+		border-color 0.2s ease,
+		opacity 0.2s ease;
+}
+.rc-btn:hover:not(:disabled) {
+	background: rgba(255, 255, 255, 0.06);
+}
+.rc-btn:disabled {
+	opacity: 0.3;
+	cursor: default;
+}
+.rc-btn.primary {
+	border-color: transparent;
+	background: var(--rc-ink);
+	color: #0b0b10;
+	box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
+}
+.rc-btn.primary:hover:not(:disabled) {
+	background: #ffffff;
+}
+
+/* A small glyph button inside a page (row actions in a form). */
+.rc-icon-btn {
+	display: inline-grid;
+	place-items: center;
+	width: 30px;
+	height: 30px;
+	min-width: 0;
+	min-height: 0;
+	padding: 0;
+	border: 0;
+	border-radius: 8px;
+	background: none;
+	color: var(--rc-muted);
+	opacity: 0.75;
+	cursor: pointer;
+	transition:
+		opacity 0.15s ease,
+		background-color 0.15s ease,
+		color 0.15s ease;
+}
+.rc-icon-btn:hover:not(:disabled) {
+	opacity: 1;
+	color: var(--rc-ink);
+	background: rgba(255, 255, 255, 0.06);
+}
+.rc-icon-btn svg {
+	width: 16px;
+	height: 16px;
+	stroke-width: 1.6;
+}
+
+/* Fields: quiet until you use them. Every field in a page takes this; the
+   OMNIA popover sits outside .rc-shell and keeps the app's own. */
+.rc-shell
+	:is(
+		input:not([type='checkbox'], [type='radio'], [type='range'], [type='file'], [type='color']),
+		textarea,
+		select
+	) {
+	min-height: 42px;
+	padding: 8px 12px;
+	border: 1px solid var(--rc-field-border);
+	border-radius: 10px;
+	background: var(--rc-field-bg);
+	box-shadow: none;
+	color: var(--rc-ink);
+	font: inherit;
+	transition:
+		border-color 0.15s ease,
+		background-color 0.15s ease;
+}
+.rc-shell
+	:is(
+		input:not([type='checkbox'], [type='radio'], [type='range'], [type='file'], [type='color']),
+		textarea,
+		select
+	):hover {
+	border-color: var(--rc-field-border-hover);
+}
+.rc-shell
+	:is(
+		input:not([type='checkbox'], [type='radio'], [type='range'], [type='file'], [type='color']),
+		textarea,
+		select
+	):focus {
+	outline: none;
+	border-color: rgba(169, 149, 238, 0.75);
+	background: rgba(255, 255, 255, 0.06);
+	box-shadow: none;
+}
+.rc-shell :is(input, textarea)::placeholder {
+	color: var(--rc-muted);
+	opacity: 0.8;
+}
+.rc-shell textarea {
+	width: 100%;
+	resize: vertical;
+}
+.rc-shell input[type='number'] {
+	-moz-appearance: textfield;
+	appearance: textfield;
+	font-variant-numeric: tabular-nums;
+}
+.rc-shell input[type='number']::-webkit-inner-spin-button,
+.rc-shell input[type='number']::-webkit-outer-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+/* A labelled field: tracked capitals over the input. */
+.rc-field {
+	display: flex;
+	flex-direction: column;
+	gap: 5px;
+	margin: 12px 0;
+}
+.rc-field > span {
+	font: 600 var(--rc-label) / 1.5 var(--rc-sans);
+	letter-spacing: var(--rc-label-track);
+	text-transform: uppercase;
+	color: var(--rc-muted);
+}
+.rc-field :is(input, textarea, select) {
+	width: 100%;
+}
+
+/* ---------- scanlines and grain ---------- */
+
+/* The analog-broadcast texture from saetyrn.com over the pane: scanlines (1px
+   every 3px) and grain that jumps by transform, which the compositor animates
+   without repainting. Pointer-transparent. It is its own layer during a slide
+   and holds still while the pages move beneath it. */
+.rc-tv {
+	position: absolute;
+	inset: 0;
+	z-index: 40;
+	overflow: hidden;
+	pointer-events: none;
+}
+.rc-tv-scan {
+	position: absolute;
+	inset: 0;
+	background-image: repeating-linear-gradient(
+		to bottom,
+		rgba(0, 0, 8, 0.16) 0px,
+		rgba(0, 0, 8, 0.16) 1px,
+		transparent 1px,
+		transparent 3px
+	);
+	filter: blur(0.4px);
+}
+.rc-tv-grain {
+	position: absolute;
+	inset: -140px;
+	opacity: 0.03;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0 0.55 0 0 0 0.9 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+	animation: rc-grain 0.9s steps(1) infinite;
+}
+@keyframes rc-grain {
+	0% { transform: translate3d(0, 0, 0); }
+	12% { transform: translate3d(-46px, 31px, 0); }
+	25% { transform: translate3d(33px, -57px, 0); }
+	37% { transform: translate3d(-70px, -13px, 0); }
+	50% { transform: translate3d(57px, 44px, 0); }
+	62% { transform: translate3d(-21px, 68px, 0); }
+	75% { transform: translate3d(12px, -39px, 0); }
+	87% { transform: translate3d(-58px, -66px, 0); }
+	100% { transform: translate3d(0, 0, 0); }
+}
+
+/* ---------- page slides (lib/recipes/transition.ts) ---------- */
+
+/* Only the pane moves: the rest of the app is the root picture, which simply
+   switches. The pane's group clips, so the drifting page never paints over
+   the sidebar. */
+html[data-recipe-slide] .rc-shell {
+	view-transition-name: recipe-page;
+}
+html[data-recipe-slide] .rc-tv {
+	view-transition-name: recipe-tv;
+}
+html[data-recipe-slide]::view-transition-old(root),
+html[data-recipe-slide]::view-transition-new(root),
+html[data-recipe-slide]::view-transition-group(recipe-tv),
+html[data-recipe-slide]::view-transition-old(recipe-tv),
+html[data-recipe-slide]::view-transition-new(recipe-tv) {
+	animation: none;
+}
+html[data-recipe-slide]::view-transition-group(recipe-page) {
+	overflow: clip;
+	animation-duration: 0.52s;
+}
+html[data-recipe-slide]::view-transition-old(recipe-page),
+html[data-recipe-slide]::view-transition-new(recipe-page) {
+	animation-duration: 0.52s;
+	animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+	animation-fill-mode: both;
+	mix-blend-mode: normal;
+}
+html[data-recipe-slide='forward']::view-transition-old(recipe-page) {
+	animation-name: rc-drift-left;
+}
+html[data-recipe-slide='forward']::view-transition-new(recipe-page) {
+	animation-name: rc-from-right;
+}
+/* Going back, the page slides away over the returning one. */
+html[data-recipe-slide='back']::view-transition-old(recipe-page) {
+	z-index: 2;
+	animation-name: rc-to-right;
+}
+html[data-recipe-slide='back']::view-transition-new(recipe-page) {
+	z-index: 1;
+	animation-name: rc-drift-in-left;
+}
+@keyframes rc-from-right {
+	from {
+		transform: translateX(100%);
+	}
+}
+@keyframes rc-to-right {
+	to {
+		transform: translateX(100%);
+	}
+}
+@keyframes rc-drift-left {
+	to {
+		transform: translateX(-28%);
+		opacity: 0;
+	}
+}
+@keyframes rc-drift-in-left {
+	from {
+		transform: translateX(-28%);
+		opacity: 0;
+	}
+}
+
+/* ---------- phones ---------- */
+
+@media (max-width: 760px) {
+	.rc-root {
+		--rc-text: var(--m-row-text);
+		--rc-small: var(--m-meta);
+		--rc-label: var(--m-label);
+		--rc-gutter: var(--m-gutter);
+	}
+	/* The 44px buttons keep the glyphs where the 40px ones had them. */
+	.rc-corner-slot {
+		top: 14px;
+		left: 12px;
+	}
+	/* OMNIA is a bottom sheet here, which must stack in the page's own lane
+	   (above the tab bar), not inside this anchor. */
+	.rc-omnia {
+		z-index: auto;
+	}
+	.rc-scroll {
+		scrollbar-gutter: auto;
+	}
+	/* A page fades to black under the corner row instead of running into it,
+	   as the recipe app's recipe page did. The menu only turns, so it has
+	   nothing to fade. */
+	.rc-page:not(.rc-menu)::before {
+		content: '';
+		display: block;
+		position: sticky;
+		z-index: 4;
+		top: 0;
+		height: calc(var(--rc-top) + 20px);
+		margin: calc(-1 * var(--rc-top)) calc(-1 * var(--rc-gutter)) -20px;
+		background: linear-gradient(to bottom, var(--rc-bg) 62%, transparent);
+		pointer-events: none;
+	}
+	.rc-link {
+		min-height: 44px;
+		font-size: var(--m-label);
+	}
+	.rc-btn {
+		min-height: 44px;
+	}
+	.rc-icon-btn {
+		width: 44px;
+		height: 44px;
+	}
+}
+
+/* ---------- touch screens wider than a phone (an iPad) ---------- */
+
+/* The phone's 44px targets, in the wide layout. */
+@media (hover: none) and (pointer: coarse) {
+	.rc-link,
+	.rc-btn {
+		min-height: 44px;
+	}
+	.rc-icon-btn {
+		width: 44px;
+		height: 44px;
+	}
+}
+
+/* ---------- reduced motion ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+	.rc-tv-grain {
+		animation: none;
+	}
+	.rc-link,
+	.rc-btn,
+	.rc-icon-btn,
+	.rc-shell :is(input, textarea, select) {
+		transition: none;
+	}
+	html[data-recipe-slide]::view-transition-old(recipe-page),
+	html[data-recipe-slide]::view-transition-new(recipe-page),
+	html[data-recipe-slide]::view-transition-group(recipe-page) {
+		animation: none;
+	}
+}
