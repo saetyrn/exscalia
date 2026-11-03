@@ -1,0 +1,118 @@
+services:
+  app:
+    # deploy.sh builds each commit as its own tag (APP_TAG=<sha>) and keeps
+    # the one before as omnianote-app:prev, so a bad deploy can roll back.
+    image: omnianote-app:${APP_TAG:-latest}
+    build:
+      context: .
+      args:
+        GIT_SHA: ${GIT_SHA:-dev}
+    restart: unless-stopped
+    environment:
+      # Set these in a .env file next to this compose file (see .env.example).
+      OMNIA_AUTH_USERNAME: ${OMNIA_AUTH_USERNAME:-owner}
+      OMNIA_AUTH_PASSWORD: ${OMNIA_AUTH_PASSWORD:-}
+      OMNIA_SESSION_SECRET: ${OMNIA_SESSION_SECRET:-change-me-in-production}
+      # The app refuses to boot with an empty password or the default secret.
+      # Set OMNIA_REQUIRE_AUTH=0 in .env to run without auth on purpose.
+      OMNIA_REQUIRE_AUTH: ${OMNIA_REQUIRE_AUTH:-1}
+      # Web Push: leave unset to auto-generate a keypair into the data volume on
+      # first boot (persists across redeploys). Set both to pin an existing pair.
+      OMNIA_VAPID_PUBLIC_KEY: ${OMNIA_VAPID_PUBLIC_KEY:-}
+      OMNIA_VAPID_PRIVATE_KEY: ${OMNIA_VAPID_PRIVATE_KEY:-}
+      OMNIA_VAPID_SUBJECT: ${OMNIA_VAPID_SUBJECT:-mailto:owner@exscalia.art}
+      OMNIA_TIMEZONE: ${OMNIA_TIMEZONE:-America/New_York}
+      OMNIA_AI_PROVIDER: ${OMNIA_AI_PROVIDER:-anthropic}
+      OMNIA_ANTHROPIC_API_KEY: ${OMNIA_ANTHROPIC_API_KEY:-}
+      OMNIA_OPENAI_API_KEY: ${OMNIA_OPENAI_API_KEY:-}
+      OMNIA_GOOGLE_API_KEY: ${OMNIA_GOOGLE_API_KEY:-}
+      OMNIA_EMBEDDING_MODEL: ${OMNIA_EMBEDDING_MODEL:-BAAI/bge-small-en-v1.5}
+      OMNIA_BACKUP_REMOTE: ${OMNIA_BACKUP_REMOTE:-}
+      OMNIA_BACKUP_INTERVAL: ${OMNIA_BACKUP_INTERVAL:-3600}
+      OMNIA_UPDATES_DIR: /updates
+    volumes:
+      - omnianote-data:/data
+      # Desktop-app update feed, published by desktop/publish-update.sh via
+      # scp into ~/omnianote/updates on the host. Read-only in the container.
+      - ./updates:/updates:ro
+    expose:
+      - "8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      # First boot downloads the embedding model; don't kill it mid-download.
+      start_period: 180s
+      # Probe every 2s during start_period, so a deploy's healthy wait ends
+      # seconds after boot instead of at the first 30s probe.
+      start_interval: 2s
+    # fastembed + ONNX + LanceDB share this container with the server. A cap
+    # turns a runaway into a restart instead of the VPS's OOM killer taking
+    # the app down mid-commit.
+    mem_limit: 2g
+    # Threads count too (ONNX, LanceDB, the asyncio pool) and stay well under
+    # this; a runaway subprocess loop stops here instead of at the host.
+    pids_limit: 512
+    # Defence in depth against a container escape. The env (session secret,
+    # provider keys) and the vault are readable in here at any uid; what this
+    # takes away on the way to the host is root (the Dockerfile runs uid
+    # 10001), every capability and a writable image. /data and the /tmp tmpfs
+    # (upload spools, temp files) are the only writable paths.
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    # Docker's default 10s grace SIGKILLed the app before its shutdown ran.
+    # Open requests get at most 5s (the CMD's graceful timeout), then the
+    # embedding drain (10s) and the backup push (20s) are each bounded; this
+    # covers all three.
+    stop_grace_period: 60s
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+
+  caddy:
+    # Pinned to a minor; `./deploy.sh ... --refresh` pulls its patch releases.
+    image: caddy:2.11-alpine
+    restart: unless-stopped
+    # Caddy only binds 80/443 and writes its own /data and /config volumes.
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
+    security_opt:
+      - no-new-privileges:true
+    depends_on:
+      app:
+        condition: service_healthy
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      # Your domain, e.g. notes.example.com. Leave unset for localhost.
+      DOMAIN: ${DOMAIN:-localhost}
+      # Optional extra domain (e.g. the bare apex) redirected to DOMAIN.
+      REDIRECT_DOMAIN: ${REDIRECT_DOMAIN:-redirect.localhost}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+
+volumes:
+  omnianote-data:
+  caddy-data:
+  caddy-config:

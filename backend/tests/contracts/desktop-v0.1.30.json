@@ -1,0 +1,642 @@
+[
+ {
+  "method": "GET",
+  "path_template": "/api/activities",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "POST",
+  "path_template": "/api/activities",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "DELETE",
+  "path_template": "/api/activities/{param}",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "POST",
+  "path_template": "/api/attachments",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/attachments/{param}",
+  "source": "frontend/src/routes/media/media/[...file]/+page.svelte"
+ },
+ {
+  "method": "DELETE",
+  "path_template": "/api/auth/failed-logins",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/auth/failed-logins",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "POST",
+  "path_template": "/api/auth/login",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "POST",
+  "path_template": "/api/auth/logout",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/auth/sessions",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "DELETE",
+  "path_template": "/api/auth/sessions/{param}",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/auth/status",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/auth/status",
+  "source": "frontend/src/lib/live.ts"
+ },
+ {
+  "method": "POST",
+  "path_template": "/api/autocorrect/{param}",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/backlinks/{param}",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "POST",
+  "path_template": "/api/backup/push",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/backup/status",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/calendar/day/{param}",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/calendar/{param}/{param}",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "POST",
+  "path_template": "/api/daily",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "POST",
+  "path_template": "/api/daily/{param}",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/flashcards/{param}",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "POST",
+  "path_template": "/api/flashcards/{param}/review",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/graph",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/history",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/history/content",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/history/diff",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "POST",
+  "path_template": "/api/history/restore",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "POST",
+  "path_template": "/api/index/rebuild",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/live",
+  "source": "frontend/src/lib/live.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/media",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "POST",
+  "path_template": "/api/media",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/media/hub",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/media/lookup",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/media/match",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "PUT",
+  "path_template": "/api/media/profile",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/media/settings",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "PUT",
+  "path_template": "/api/media/settings",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/media/timeline",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/media/{param}",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "PATCH",
+  "path_template": "/api/media/{param}",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "POST",
+  "path_template": "/api/media/{param}/log",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "POST",
+  "path_template": "/api/media/{param}/log/delete",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "PUT",
+  "path_template": "/api/media/{param}/review",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/notes",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "POST",
+  "path_template": "/api/notes",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/notes/folders",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "POST",
+  "path_template": "/api/notes/folders",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "POST",
+  "path_template": "/api/notes/folders/delete",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "POST",
+  "path_template": "/api/notes/folders/rename",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/notes/manifest",
+  "source": "frontend/src/lib/sync/engine.ts"
+ },
+ {
+  "method": "POST",
+  "path_template": "/api/notes/task-board",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "DELETE",
+  "path_template": "/api/notes/{param}",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/notes/{param}",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "PUT",
+  "path_template": "/api/notes/{param}",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "POST",
+  "path_template": "/api/notes/{param}/add-link",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "POST",
+  "path_template": "/api/notes/{param}/pin",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "POST",
+  "path_template": "/api/notes/{param}/rename",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/omnia/actions",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "POST",
+  "path_template": "/api/omnia/actions/{param}/undo",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "POST",
+  "path_template": "/api/omnia/confirmations/{param}/approve",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "POST",
+  "path_template": "/api/omnia/confirmations/{param}/cancel",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/omnia/note-thread",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "PUT",
+  "path_template": "/api/omnia/note-thread",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/omnia/threads",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "POST",
+  "path_template": "/api/omnia/threads",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "DELETE",
+  "path_template": "/api/omnia/threads/{param}",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/omnia/threads/{param}",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "PATCH",
+  "path_template": "/api/omnia/threads/{param}",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "POST",
+  "path_template": "/api/omnia/threads/{param}/messages",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "DELETE",
+  "path_template": "/api/omnia/threads/{param}/messages/{param}",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "POST",
+  "path_template": "/api/omnia/threads/{param}/stop",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/overseer/alerts",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "POST",
+  "path_template": "/api/overseer/alerts/ack",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/overseer/config",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "POST",
+  "path_template": "/api/overseer/config",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/overseer/models",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "POST",
+  "path_template": "/api/overseer/morning",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "POST",
+  "path_template": "/api/overseer/observations/{param}/confirm",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "POST",
+  "path_template": "/api/overseer/observations/{param}/dismiss",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/overseer/status",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/paper",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/paper/blob/{param}/{param}/render.png",
+  "source": "frontend/src/routes/paper/[...notebook]/+page.svelte"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/paper/id/{param}/{param}",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/paper/notebooks/{param}",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/paper/search",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/pending",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "POST",
+  "path_template": "/api/pending-approve-all",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "POST",
+  "path_template": "/api/pending-discard-all",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/pending/count",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "POST",
+  "path_template": "/api/pending/{param}/approve",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "POST",
+  "path_template": "/api/pending/{param}/discard",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "DELETE",
+  "path_template": "/api/proofread/{param}",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/proofread/{param}",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "POST",
+  "path_template": "/api/proofread/{param}/dismiss/{param}",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/push/public-key",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/push/public-key",
+  "source": "frontend/src/service-worker.ts"
+ },
+ {
+  "method": "POST",
+  "path_template": "/api/push/subscribe",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "POST",
+  "path_template": "/api/push/subscribe",
+  "source": "frontend/src/service-worker.ts"
+ },
+ {
+  "method": "POST",
+  "path_template": "/api/push/test",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "POST",
+  "path_template": "/api/push/unsubscribe",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/related/{param}",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/search",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/search/semantic/status",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/search/unified",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/settings/appearance",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "PUT",
+  "path_template": "/api/settings/appearance",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/settings/folder-order",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "PUT",
+  "path_template": "/api/settings/folder-order",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/settings/general",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "PUT",
+  "path_template": "/api/settings/general",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/settings/note-order",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "PUT",
+  "path_template": "/api/settings/note-order",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/settings/omnia",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "PUT",
+  "path_template": "/api/settings/omnia",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/tags",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/tags/{param}/notes",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/tasks",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "POST",
+  "path_template": "/api/tasks",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "POST",
+  "path_template": "/api/tasks/reorder",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/tasks/timeline",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "DELETE",
+  "path_template": "/api/tasks/{param}",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "PATCH",
+  "path_template": "/api/tasks/{param}",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "DELETE",
+  "path_template": "/api/trash",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/trash",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "DELETE",
+  "path_template": "/api/trash/{param}",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "GET",
+  "path_template": "/api/trash/{param}",
+  "source": "frontend/src/lib/api.ts"
+ },
+ {
+  "method": "POST",
+  "path_template": "/api/trash/{param}/restore",
+  "source": "frontend/src/lib/api.ts"
+ }
+]

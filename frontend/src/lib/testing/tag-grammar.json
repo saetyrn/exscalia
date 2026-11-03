@@ -1,0 +1,14 @@
+[
+	{ "body": "#café #naïve #Übung #résumé #日本 #2026", "tags": ["café", "naïve", "résumé"] },
+	{
+		"body": "#café #naïve #Übung #résumé #日本 #2026",
+		"tags": ["café", "naïve", "résumé"]
+	},
+	{ "body": "#café and again #café", "tags": ["café"] },
+	{ "body": "#pag̃e", "tags": ["pag̃e"] },
+	{ "body": "before #kept\n```\n#fenced\n```\nafter #also", "tags": ["kept", "also"] },
+	{ "body": "word#notatag\n## Heading\n# Title\n#2026", "tags": [] },
+	{ "body": "#a/b-c_d, then #x.", "tags": ["a/b-c_d", "x"] },
+	{ "body": "#yogaयोग and #shalomשָׁלוֹם", "tags": ["yogaयोग", "shalomשָׁלוֹם"] },
+	{ "body": "#salamسَلام #v⃗", "tags": ["salamسَلام", "v⃗"] }
+]

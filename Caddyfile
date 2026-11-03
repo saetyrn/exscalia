@@ -1,0 +1,39 @@
+# Automatic HTTPS: with DOMAIN set to a real domain pointing at this server,
+# Caddy provisions Let's Encrypt certificates automatically. With the default
+# (localhost) it serves a locally-trusted self-signed certificate.
+{$DOMAIN:localhost} {
+	encode gzip
+	header {
+		# A year of HSTS: the app is HTTPS-only and cookie-authenticated.
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options nosniff
+		X-Frame-Options DENY
+		Referrer-Policy no-referrer
+	}
+	# Body caps, so an unauthenticated login POST cannot stream hundreds of MB
+	# into the app's memory. Where two caps match a path both apply, so the
+	# tighter one wins. Paper sets the site-wide cap: a 50 MB asset, or a page
+	# save carrying a 32 MB drawing, an 8 MB render and 2 MB of text in one
+	# request. backend/app/body_limit.py holds the app to the same caps on the
+	# declared Content-Length; these also bound chunked bodies, which declare
+	# no length.
+	request_body {
+		max_size 64MB
+	}
+	@auth path /api/auth/*
+	request_body @auth {
+		max_size 64KB
+	}
+	@attach path /api/attachments*
+	request_body @attach {
+		max_size 30MB
+	}
+	reverse_proxy app:8000
+}
+
+# Optional alias redirect: set REDIRECT_DOMAIN (e.g. the bare apex
+# exscalia.art) to permanently redirect it to the app domain above. The
+# default is an unused .localhost name so this block is inert when unset.
+{$REDIRECT_DOMAIN:redirect.localhost} {
+	redir https://{$DOMAIN:localhost}{uri} permanent
+}
