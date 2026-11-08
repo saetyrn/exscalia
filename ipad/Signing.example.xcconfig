@@ -1,0 +1,9 @@
+// Copy to Signing.xcconfig (gitignored) and fill in your Apple Developer team id.
+//
+// Xcode -> Settings -> Accounts -> add your Apple ID -> select the
+// "<Your Name> (Personal Team)" row -> the team id is shown there, and also in
+// ~/Library/Developer/Xcode/UserData/Provisioning Profiles.
+//
+// Simulator builds need no team at all: leave this empty and everything still
+// builds. A value is only required to install on a physical iPad.
+EXSCALIA_DEVELOPMENT_TEAM =

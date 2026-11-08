@@ -1,0 +1,50 @@
+name: Desktop build
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Windows only: macOS is built and signed on the Mac (HANDOFF §4). The updater
+# signing key never enters CI; the installer is built unsigned here and
+# publish-update.sh signs it locally before it goes into the feed.
+# Actions are pinned to commit SHAs; re-pin deliberately to upgrade.
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+
+      - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
+
+      - uses: swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+        with:
+          workspaces: desktop/src-tauri
+
+      - name: Install frontend deps
+        run: npm ci --prefix frontend
+
+      - name: Install desktop deps
+        run: npm ci --prefix desktop
+
+      # Build only, no release. With a pubkey configured the CLI refuses to
+      # produce updater artifacts without the private key, so tauri.ci.conf.json
+      # switches them off; the NSIS installer itself is unchanged.
+      - uses: tauri-apps/tauri-action@84b9d35b5fc46c1e45415bdb6144030364f7ebc5 # v0.6.2
+        with:
+          projectPath: desktop
+          args: --config src-tauri/tauri.ci.conf.json
+
+      - name: Upload installer as workflow artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: bundles-windows-latest
+          path: desktop/src-tauri/target/release/bundle/nsis/*-setup.exe
+          if-no-files-found: error
