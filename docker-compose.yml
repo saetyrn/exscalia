@@ -124,7 +124,7 @@ services:
   # hostnames (in the Cloudflare dashboard) point at http://caddy:80.
   cloudflared:
     # Pinned like caddy; bump by hand.
-    image: cloudflare/cloudflared:2026.10.7
+    image: cloudflare/cloudflared:2026.11.0
     profiles: ["tunnel"]
     restart: unless-stopped
     command: tunnel --no-autoupdate run
