@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+	<title>EXSCALIA</title>
+	<rect width="128" height="128" rx="24" fill="#000"/>
+	<path d="M64 29v70M29 64h70" fill="none" stroke="#fff" stroke-width="14" stroke-linecap="round"/>
+</svg>

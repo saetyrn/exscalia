@@ -1,0 +1,24 @@
+.git
+data
+frontend/node_modules
+frontend/build
+frontend/.svelte-kit
+backend/.venv
+**/__pycache__
+.env
+# The image needs only frontend/ and backend/; the rest is private or scratch
+# and stays out of any build context.
+output
+tmp
+**/*.pdf
+HANDOFF.md
+AUDIT-*.md
+.claude
+.pstack
+.github
+desktop
+ipad
+updates
+vault-import
+**/.DS_Store
+.Rhistory

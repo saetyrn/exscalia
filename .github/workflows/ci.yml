@@ -1,0 +1,83 @@
+name: CI
+
+# Docs-only, iPad-only and desktop-only changes cannot affect these suites
+# (PaperCore has its own workflow), except PaperCore's wire fixtures, which the
+# backend's paper wire test compares against. Later patterns win.
+on:
+  push:
+    branches: [main]
+    paths:
+      - '**'
+      - '!**.md'
+      - '!desktop/**'
+      - '!ipad/**'
+      - 'ipad/Packages/PaperCore/Tests/PaperCoreTests/Fixtures/**'
+  pull_request:
+    paths:
+      - '**'
+      - '!**.md'
+      - '!desktop/**'
+      - '!ipad/**'
+      - 'ipad/Packages/PaperCore/Tests/PaperCoreTests/Fixtures/**'
+
+# A newer push to the same ref supersedes the run in flight.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: '3.12'
+
+      # Config lives in backend/pyproject.toml. uvx runs ruff from uv's cache,
+      # so it is not a project dependency; pinned so a ruff release cannot
+      # turn an unrelated push red.
+      - name: Lint (ruff)
+        working-directory: backend
+        run: uvx ruff@0.16.8 check .
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      # The full-lifespan smoke test asserts the built SPA actually serves,
+      # so the backend job needs a real frontend build, not a stub.
+      - name: Build frontend
+        run: npm ci --prefix frontend && npm run build --prefix frontend
+
+      - name: Run backend tests
+        working-directory: backend
+        # pytest lives in the `dev` extra, not the base dependencies.
+        # --locked fails on a stale uv.lock instead of silently re-resolving.
+        run: uv run --locked --extra dev pytest -q -o faulthandler_timeout=60
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install deps
+        run: npm ci --prefix frontend
+
+      - name: Unit tests
+        run: npm test --prefix frontend
+
+      - name: Build
+        run: npm run build --prefix frontend
+
+      - name: Type check
+        run: npm run check --prefix frontend

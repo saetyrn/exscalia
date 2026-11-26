@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+.venv/
+node_modules/
+/data/
+frontend/build/
+frontend/.svelte-kit/
+.env
+.DS_Store
+/updates/
+desktop/win-artifacts/
+/tmp/
+/output/
+*.pdf
+.pstack/
+.Rhistory
