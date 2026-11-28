@@ -1,0 +1,41 @@
+{
+  "page": {
+    "bookmarked": true,
+    "conflict_of": null,
+    "created": "2026-09-02T10:00:00.123456Z",
+    "drawing_url": "/api/paper/blob/paper/Work/Ideas.paper/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/drawing.pkdrawing?r=2",
+    "durable_url": "/paper/id/5eed5eed5eed5eed5eed5eed5eed5eed/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "last_write": {
+      "base_revision": 1,
+      "client_id": "ipad-1",
+      "drawing_sha256": "16367aacb67a4a017c8da8ab95682ccb390863780f7114dda0a0e0c55644c7c4"
+    },
+    "modified": "2026-09-02T10:00:00.123456Z",
+    "notebook": "paper/Work/Ideas.paper",
+    "notebook_id": "5eed5eed5eed5eed5eed5eed5eed5eed",
+    "objects": [],
+    "path": "paper/Work/Ideas.paper/pages/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "pdf": null,
+    "render_etag": "62432147ca99",
+    "render_revision": 2,
+    "render_url": "/api/paper/blob/paper/Work/Ideas.paper/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/render.png?r=2&v=62432147ca99",
+    "revision": 2,
+    "seq": 4,
+    "size": {
+      "height": 1366.0,
+      "width": 1024.0
+    },
+    "size_points": {
+      "height": 2048.5,
+      "width": 1024.0
+    },
+    "template": "grid",
+    "text_etag": "4f167f0969b4",
+    "text_revision": 2,
+    "text_url": "/api/paper/blob/paper/Work/Ideas.paper/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/text.json?r=2&v=4f167f0969b4",
+    "title": "Sketch"
+  },
+  "revision": 2,
+  "stale": false
+}

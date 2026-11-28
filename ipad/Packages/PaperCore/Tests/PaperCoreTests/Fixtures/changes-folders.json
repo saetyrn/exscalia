@@ -1,0 +1,31 @@
+{
+  "deleted": [],
+  "epoch": "e0e0e0e0e0e0",
+  "folder_moves": [
+    {
+      "at": "2026-09-02T10:00:00.123456Z",
+      "from": "paper/Work",
+      "id": "9e7201dacb87ef0d43fb22798ccf4af6",
+      "seq": 13,
+      "to": "paper/Work 2026"
+    }
+  ],
+  "folders": [
+    {
+      "color": "blue",
+      "created": "2026-09-02T10:00:00.123456Z",
+      "favorite": false,
+      "icon": null,
+      "id": "9e7201dacb87ef0d43fb22798ccf4af6",
+      "modified": "2026-09-02T10:00:00.123456Z",
+      "name": "Work 2026",
+      "parent": "paper",
+      "path": "paper/Work 2026",
+      "seq": 13
+    }
+  ],
+  "full": false,
+  "notebooks": [],
+  "pages": [],
+  "seq": 13
+}

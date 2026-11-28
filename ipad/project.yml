@@ -1,0 +1,145 @@
+name: EXSCALIA
+
+options:
+  bundleIdPrefix: art.exscalia
+  deploymentTarget:
+    iOS: "18.0"
+  createIntermediateGroups: true
+  groupSortPosition: top
+  generateEmptyDirectories: false
+
+configs:
+  Debug: debug
+  Release: release
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    SWIFT_STRICT_CONCURRENCY: complete
+    SWIFT_UPCOMING_FEATURE_CONCISE_MAGIC_FILE: YES
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+    CLANG_ENABLE_MODULES: YES
+
+packages:
+  PaperCore:
+    path: Packages/PaperCore
+  PaperUI:
+    path: Packages/PaperUI
+
+targets:
+  EXSCALIA:
+    type: application
+    platform: iOS
+    deploymentTarget: "18.0"
+    sources:
+      - path: App
+    dependencies:
+      - package: PaperCore
+        product: PaperCore
+      - package: PaperUI
+        product: PaperUI
+    configFiles:
+      Debug: Signing.xcconfig
+      Release: Signing.xcconfig
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: art.exscalia.ipad
+        PRODUCT_NAME: EXSCALIA
+        MARKETING_VERSION: "0.1.0"
+        CURRENT_PROJECT_VERSION: "1"
+        # TARGETED_DEVICE_FAMILY 2 == iPad only.
+        TARGETED_DEVICE_FAMILY: "2"
+        SUPPORTS_MACCATALYST: NO
+        SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD: NO
+        SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD: NO
+        CODE_SIGN_STYLE: Automatic
+        # DEVELOPMENT_TEAM comes from the gitignored Signing.xcconfig.
+        DEVELOPMENT_TEAM: "$(EXSCALIA_DEVELOPMENT_TEAM)"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        GENERATE_INFOPLIST_FILE: NO
+    info:
+      path: App/Resources/Info.plist
+      properties:
+        CFBundleDisplayName: EXSCALIA
+        CFBundleName: EXSCALIA
+        CFBundleShortVersionString: "$(MARKETING_VERSION)"
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
+        UILaunchScreen: {}
+        UIRequiresFullScreen: false
+        # Inside the scene manifest, where UIKit reads it: at the top level of
+        # Info.plist it is ignored and a second window is refused.
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: true
+        # Paper's "Open in New Window" (PaperWindowView.windowActivityType).
+        NSUserActivityTypes:
+          - art.exscalia.ipad.paper.window
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        UIApplicationSupportsIndirectInputEvents: true
+        UIFileSharingEnabled: true
+        LSSupportsOpeningDocumentsInPlace: true
+        NSCameraUsageDescription: EXSCALIA uses the camera so you can place a photo straight onto a Paper page.
+        NSPhotoLibraryUsageDescription: EXSCALIA reads your photo library so you can place images onto a Paper page.
+        NSPhotoLibraryAddUsageDescription: EXSCALIA saves exported Paper pages to your photo library when you ask it to.
+        NSAppTransportSecurity:
+          NSAllowsLocalNetworking: true
+        NSLocalNetworkUsageDescription: EXSCALIA connects to an OMNIA server on your local network when you point it at one.
+
+  EXSCALIATests:
+    type: bundle.unit-test
+    platform: iOS
+    deploymentTarget: "18.0"
+    sources:
+      - path: Tests
+    dependencies:
+      - target: EXSCALIA
+      - package: PaperCore
+        product: PaperCore
+      - package: PaperUI
+        product: PaperUI
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: art.exscalia.ipad.tests
+        GENERATE_INFOPLIST_FILE: YES
+
+  # Real touches, which is the only way to prove that a drag in Lasso mode is
+  # not handed to the scroll view's pan.
+  EXSCALIAUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    deploymentTarget: "18.0"
+    sources:
+      - path: UITests
+    dependencies:
+      - target: EXSCALIA
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: art.exscalia.ipad.uitests
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_TARGET_NAME: EXSCALIA
+
+schemes:
+  EXSCALIA:
+    build:
+      targets:
+        EXSCALIA: all
+        EXSCALIATests: [test]
+        EXSCALIAUITests: [test]
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - EXSCALIATests
+        - EXSCALIAUITests
+    profile:
+      config: Release
+    analyze:
+      config: Debug
+    archive:
+      config: Release
